@@ -13,6 +13,7 @@ import MuiAlert from '@material-ui/lab/Alert';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import BookIcon from '@material-ui/icons/Book';
 import GitHubIcon from '@material-ui/icons/GitHub';
+import Typography from '@material-ui/core/Typography';
 
 import Edit from './Edit';
 
@@ -160,7 +161,12 @@ export default function Sidebar(props) {
         : editing ? <Edit selectedCommand={selectedCommand} setSelectedCommand={setSelectedCommand} newHeader={newHeader} setNewHeader={setNewHeader} saveNewHeader={saveNewHeader} commands={commands} saveCommands={saveCommands} saving={saving} setEditing={setEditing} /> 
         : (!commands || commands.length === 0) ? (
           <>
-            <h4>No saved data connections.</h4>
+            <Typography variant="h6" gutterBottom>
+            No saved data connections.
+            </Typography>
+            <Typography variant="body2" gutterBottom>
+            The link to our documentation below has tons of examples to help get you started.
+            </Typography>
             <NewCommandButton editing={editing} editCommand={editCommand} />
           </>
         ) : (
@@ -204,8 +210,8 @@ export default function Sidebar(props) {
         )}
       </div>
       <div className="sidebar bottom">
-        <Button variant="contained" size="small" color='primary' className={classes.button} startIcon={<BookIcon />} href="https://dataconnector.app/docs/docs/" target="_blank" fullWidth style={{width:'95%'}}>View the docs</Button>
-        <Button variant="contained" size="small" className={classes.button} startIcon={<GitHubIcon />} href="https://github.com/brentadamson/dataconnector" target="_blank" fullWidth style={{width:'95%'}}>Report an issue</Button>
+        <Button variant="contained" size="small" color='primary' className={classes.button} startIcon={<BookIcon />} href="https://dataconnector.app/docs/docs/" target="_blank" fullWidth style={{width:'95%'}}>Documentation</Button>
+        <Button variant="contained" size="small" className={classes.button} startIcon={<GitHubIcon />} href="https://github.com/brentadamson/dataconnector" target="_blank" fullWidth style={{width:'95%'}}>Request a feature</Button>
         <Snackbar open={alertOpen} autoHideDuration={6000} onClose={handleAlertClose}>
           <Alert onClose={handleAlertClose} severity="error">
             {alertMessage}
