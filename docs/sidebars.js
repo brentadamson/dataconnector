@@ -8,6 +8,7 @@ module.exports = {
         'parameters',
         'binance',
         'coinbase',
+        'coinmarketcap',
         'pse-lookup',
         'stripe'
       ],
