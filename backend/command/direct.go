@@ -19,9 +19,11 @@ var (
 
 // Direct is a command where each component (method, headers, etc) are separate
 type Direct struct {
-	Client HTTPClienter `json:"-"`
-	Method string       `json:"method,omitempty"`
-	Body   string       `json:"body,omitempty"`
+	Client      HTTPClienter `json:"-"`
+	Method      string       `json:"method,omitempty"`
+	Body        string       `json:"body,omitempty"`
+	Provider    string       `json:"provider,omitempty"`
+	credentials map[string]string
 	Web
 }
 
@@ -65,6 +67,14 @@ func (d *Direct) DeParameterize(params []string) (err error) {
 	return
 }
 
+// AddCredentials adds the user's OAuth2 credentials
+func (d *Direct) AddCredentials(creds map[string]string) {
+	d.credentials = make(map[string]string)
+	for key, value := range creds {
+		d.credentials[key] = value
+	}
+}
+
 // Run executes a command directly
 func (d *Direct) Run() ([]byte, error) {
 	var bdy io.Reader
@@ -82,6 +92,22 @@ func (d *Direct) Run() ([]byte, error) {
 	req.Header.Set("User-Agent", "Data Connector for Google Sheets (https://github.com/brentadamson/dataconnector)")
 	for _, header := range d.Headers {
 		req.Header.Add(header.Key, header.Value)
+	}
+
+	// Handle OAuth2 requests
+	if d.Provider != "" {
+		var found bool
+		for connection, token := range d.credentials {
+			if connection == d.Provider {
+				found = true
+				req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
+			}
+		}
+		// If a Provider is specified but the creds weren't passed in, that likely means the user needs to authorize the service in Sheets
+		// This isn't ideal. Will be better/less confusing when we store commands in the Sheets script itself
+		if !found {
+			return nil, errNotAuthorized
+		}
 	}
 
 	resp, err := d.Client.Do(req)

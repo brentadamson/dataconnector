@@ -1,0 +1,21 @@
+<html>
+  <head>
+    <base target="_top">
+  </head>
+  <body>
+    <h1><?= title ?></h1>
+    You can close this tab now
+  </body>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/intercom.js/0.1.4/intercom.min.js"></script>
+  <script>
+    // couldn't get window.postMessage (or any of it's variants) to work. Hopefully the user has local storage for intercom to work ;).
+    var intercom = Intercom.getInstance();
+    intercom.emit('oauthComplete', {
+      email: 'true',
+      isSignedIn: true,
+    });
+    if (window.top) {
+      window.top.close();
+    }
+  </script>
+</html>

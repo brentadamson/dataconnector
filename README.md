@@ -75,6 +75,11 @@ The easiest way to run the Data Connector Add-on is to install it from the Googl
   function updateEnvVariables(){
     PropertiesService.getScriptProperties().setProperty('DOMAIN', 'https://api.example.com');
     PropertiesService.getScriptProperties().setProperty('JWT_SECRET', 'secret');
+
+    // OAuth2 Creds
+    //// GitHub
+    PropertiesService.getScriptProperties().setProperty('GITHUB_CLIENT_ID', 'my-github-client-id');
+    PropertiesService.getScriptProperties().setProperty('GITHUB_CLIENT_SECRET', 'my-github-client-secret');
   }
   ```
 

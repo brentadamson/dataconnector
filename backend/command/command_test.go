@@ -16,9 +16,10 @@ func TestMarshalAndUnmarshalJSON(t *testing.T) {
 			cmd: &Command{
 				Type: directType,
 				Commander: &Direct{
-					Client: HTTPClient,
-					Method: GET,
-					Body:   "request body",
+					Client:   HTTPClient,
+					Method:   GET,
+					Body:     "request body",
+					Provider: "github",
 					Web: Web{
 						URL: "http://example.com/+++1+++/+++2+++",
 					},
@@ -53,7 +54,7 @@ func TestMarshalAndUnmarshalJSON(t *testing.T) {
 			if got.Type == webType {
 				/*
 					TODO: revisit this
-					if !funcEqual(&got.Commander.(*Web).runner, &c.want.Commander.(*Web).runner) {
+					if !equal(&got.Commander.(*Web).runner, &c.want.Commander.(*Web).runner) {
 						t.Fatalf("expected a chromedp runner: got %+v; want %+v", got.Commander, c.want.Commander)
 					}
 				*/
@@ -71,7 +72,7 @@ func TestMarshalAndUnmarshalJSON(t *testing.T) {
 	}
 }
 
-func funcEqual(a, b interface{}) bool {
+func equal(a, b interface{}) bool {
 	av := reflect.ValueOf(&a).Elem()
 	bv := reflect.ValueOf(&b).Elem()
 	return av.InterfaceData() == bv.InterfaceData()

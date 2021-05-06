@@ -36,6 +36,9 @@ func (c *Curl) DeParameterize(params []string) (err error) {
 	return
 }
 
+// AddCredentials adds the user's OAuth2 credentials (if applicable)
+func (c *Curl) AddCredentials(creds map[string]string) {}
+
 // Run executes a cURL command
 func (c *Curl) Run() ([]byte, error) {
 	cmd := Runner("bash", "-c", c.Command)

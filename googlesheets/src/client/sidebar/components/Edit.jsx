@@ -5,15 +5,18 @@ import TextField from '@material-ui/core/TextField';
 import MenuItem from '@material-ui/core/MenuItem';
 import AddIcon from '@material-ui/icons/Add';
 import CancelIcon from '@material-ui/icons/Cancel';
+import FormLabel from '@material-ui/core/FormLabel';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Divider from '@material-ui/core/Divider';
-import SaveIcon from '@material-ui/icons/Save';
+import GitHubIcon from '@material-ui/icons/GitHub';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText'; 
+import SaveIcon from '@material-ui/icons/Save';
 import Table from '@material-ui/core/Table';
-import FormLabel from '@material-ui/core/FormLabel';
+
+import OAuth2 from './OAuth2';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -73,7 +76,7 @@ export default function Edit(props) {
         <TextField
           select
           label="Type"
-          defaultValue={props.selectedCommand.command.type}
+          value={props.selectedCommand.command.type}
           size='small'
           fullWidth
           inputProps={{style: {fontSize: 12}}} InputLabelProps={{style: {fontSize: 12}}}
@@ -83,6 +86,7 @@ export default function Edit(props) {
           <MenuItem key='direct' value='direct'>
             API
           </MenuItem>
+          {/*
           <MenuItem key='curl' value='curl' disabled>
             cURL (coming soon!)
           </MenuItem>
@@ -92,6 +96,7 @@ export default function Edit(props) {
           <MenuItem key='web' value='web' disabled>
             Web (coming soon!)
           </MenuItem>
+          */}
         </TextField>
         {
           props.selectedCommand.command.type == 'direct' ? <Direct {...props} saveNewHeader={props.saveNewHeader} newHeader={props.newHeader} setNewHeader={props.setNewHeader} />
@@ -176,6 +181,7 @@ function Direct(props) {
 
   return (
     <>
+      <OAuth2 {...props} />
       <TextField
         select
         label="Method"

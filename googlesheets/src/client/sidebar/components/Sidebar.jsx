@@ -58,6 +58,7 @@ export default function Sidebar(props) {
   };
 
   useEffect(() => {
+    // get the user's commands
     setGetting(true);
     serverFunctions.getCommands().then(function(rsp){
       if('error' in rsp){
@@ -158,7 +159,7 @@ export default function Sidebar(props) {
     <div className={classes.root}>
       <div className="sidebar branding-below">
         {getting ? <CircularProgress />
-        : editing ? <Edit selectedCommand={selectedCommand} setSelectedCommand={setSelectedCommand} newHeader={newHeader} setNewHeader={setNewHeader} saveNewHeader={saveNewHeader} commands={commands} saveCommands={saveCommands} saving={saving} setEditing={setEditing} /> 
+        : editing ? <Edit selectedCommand={selectedCommand} setSelectedCommand={setSelectedCommand} newHeader={newHeader} setNewHeader={setNewHeader} saveNewHeader={saveNewHeader} commands={commands} saveCommands={saveCommands} saving={saving} setEditing={setEditing} setAlertMessage={setAlertMessage} />
         : (!commands || commands.length === 0) ? (
           <>
             <Typography variant="h6" gutterBottom>
@@ -190,7 +191,7 @@ export default function Sidebar(props) {
                   size="small"
                   className={classes.button}
                   startIcon={<EditIcon style={{color:'#3f8cb5'}} />}
-                  disabled={editing} onClick={() => editCommand(idx, command)}
+                  disabled={editing || saving} onClick={() => editCommand(idx, command)}
                 >
                   Edit
                 </Button>
@@ -198,7 +199,7 @@ export default function Sidebar(props) {
                   size="small"
                   className={classes.button}
                   startIcon={<DirectionsRun color='primary' />}
-                  disabled={running} 
+                  disabled={running || saving} 
                   onClick={() => runCommand(command.name)}
                 >
                   Run

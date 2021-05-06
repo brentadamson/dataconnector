@@ -177,6 +177,8 @@ func (cfg *Config) RunHandler(r *http.Request) (rsp *Response) {
 			return rsp
 		}
 
+		cmd.Command.AddCredentials(user.Credentials)
+
 		bdy, rsp.Error = cmd.Command.Run()
 		if rsp.Error != nil {
 			rsp.Error = fmt.Errorf("%s:%q", rsp.Error, string(bdy))

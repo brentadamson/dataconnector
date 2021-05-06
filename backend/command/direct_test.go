@@ -153,6 +153,33 @@ func TestDirectDeParameterize(t *testing.T) {
 	}
 }
 
+func TestDirectAddCredentials(t *testing.T) {
+	for _, c := range []struct {
+		name        string
+		direct      *Direct
+		credentials map[string]string
+		want        *Direct
+		wantErr     error
+	}{
+		{
+			name:        "adds credentials correctly",
+			direct:      &Direct{},
+			credentials: map[string]string{"mock_credential": "1234567"},
+			want: &Direct{
+				credentials: map[string]string{"mock_credential": "1234567"},
+			},
+			wantErr: nil,
+		},
+	} {
+		t.Run(c.name, func(t *testing.T) {
+			c.direct.AddCredentials(c.credentials)
+			if !reflect.DeepEqual(c.direct, c.want) {
+				t.Fatalf("got %+v; want %+v", c.direct, c.want)
+			}
+		})
+	}
+}
+
 func TestDirectRun(t *testing.T) {
 	// TODO: test that headers get set, etc.
 	for _, c := range []struct {
@@ -170,12 +197,44 @@ func TestDirectRun(t *testing.T) {
 				Web: Web{
 					URL: "https://www.example.com/1",
 					Headers: []Header{
-						Header{Key: "header_key", Value: "header_value"},
+						{Key: "header_key", Value: "header_value"},
 					},
 				},
 			},
 			want:    `{"result":"done"}`,
 			wantErr: nil,
+		},
+		{
+			name: "OAuth2 connection runs",
+			direct: &Direct{
+				Client:      &mockClient{},
+				Method:      GET,
+				Body:        "request body",
+				Provider:    "provider1",
+				credentials: map[string]string{"provider1": "1234567"},
+				Web: Web{
+					URL:     "https://www.example.com/1",
+					Headers: []Header{},
+				},
+			},
+			want:    `{"result":"done"}`,
+			wantErr: nil,
+		},
+		{
+			name: "unauthorized OAuth2 connection returns error",
+			direct: &Direct{
+				Client:      &mockClient{},
+				Method:      GET,
+				Body:        "request body",
+				Provider:    "provider2",
+				credentials: map[string]string{"provider1": "1234567"},
+				Web: Web{
+					URL:     "https://www.example.com/1",
+					Headers: []Header{},
+				},
+			},
+			want:    "",
+			wantErr: errNotAuthorized,
 		},
 	} {
 		t.Run(c.name, func(t *testing.T) {

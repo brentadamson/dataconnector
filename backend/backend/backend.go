@@ -38,9 +38,10 @@ type User struct {
 }
 
 type userCommand struct {
-	GoogleKey   string   `json:"google_key"`
-	CommandName string   `json:"command_name"`
-	Params      []string `json:"params"`
+	GoogleKey   string            `json:"google_key"`
+	CommandName string            `json:"command_name"`
+	Params      []string          `json:"params"`
+	Credentials map[string]string `json:"credentials,omitempty"`
 }
 
 type userCommands struct {

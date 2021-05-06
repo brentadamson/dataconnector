@@ -52,6 +52,7 @@ func (c *mockCommander) Valid() (err error) {
 func (c *mockCommander) DeParameterize(params []string) (err error) {
 	return
 }
+func (c *mockCommander) AddCredentials(credentials map[string]string) {}
 func (c *mockCommander) Run() (bdy []byte, err error) {
 	bdy = []byte(`"mock command was run"`)
 	return
@@ -229,7 +230,7 @@ func TestRunHandler(t *testing.T) {
 	}{
 		{
 			name:        "can run a user's command",
-			requestBody: `{"google_key":"123","command_name":"first command","params":["1","2","3"]}`,
+			requestBody: `{"google_key":"123","command_name":"first command","params":["1","2","3"],"credentials":{"github":"1234567"}}`,
 			want: &Response{
 				status:   http.StatusOK,
 				template: "json",

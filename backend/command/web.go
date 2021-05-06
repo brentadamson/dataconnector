@@ -52,6 +52,9 @@ func (w *Web) DeParameterize(params []string) (err error) {
 	return
 }
 
+// AddCredentials adds the user's OAuth2 credentials (if applicable)
+func (w *Web) AddCredentials(creds map[string]string) {}
+
 // Run executes a command with a headless browser
 // TODO: Set headers, etc...
 func (w *Web) Run() (bdy []byte, err error) {

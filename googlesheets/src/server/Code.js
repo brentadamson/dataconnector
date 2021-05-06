@@ -86,6 +86,8 @@ function run(name, args){
     'muteHttpExceptions': false,
     'payload': {
       'google_key': Session.getTemporaryActiveUserKey(),
+      // TODO: We won't have to get every access token once we start storing everything in PropertiesService...
+      'credentials': getOAuthConnections(),
       'command_name': name,
       'params': [],    
     }
@@ -167,6 +169,92 @@ const createJwt = ({ privateKey, input = {} }) => {
   return `${toSign}.${signature}`;
 };
 
+var oauthConnections = [getGitHubService];
+
+/**
+ * Gets the user's authorized OAuth2 connections
+ * @return {Object} An array of active OAuth2 connections
+ */
+ function getOAuthConnections(){
+  var authorized = {};
+  oauthConnections.forEach(function(item, index){
+    var service = item();
+    if (service.hasAccess()){
+      authorized[service.serviceName_] = service.getAccessToken();
+    }
+  })
+  return authorized;
+}
+
+
+/**
+ * Builds and returns the authorization URL from the service object.
+ * @return {String} The authorization URL.
+ */
+function getAuthorizationUrl() {
+  return getGitHubService().getAuthorizationUrl();
+}
+
+/**
+ * Resets the API service, forcing re-authorization before
+ * additional authorization-required API calls can be made.
+ */
+function signOut() {
+  getGitHubService().reset();
+}
+
+/**
+ * Gets an OAuth2 service configured for the GitHub API.
+ * @return {OAuth2.Service} The OAuth2 service
+ */
+function getGitHubService(){
+  return OAuth2.createService('github')
+    .setAuthorizationBaseUrl('https://github.com/login/oauth/authorize')
+    .setTokenUrl('https://github.com/login/oauth/access_token')
+    .setClientId(PropertiesService.getScriptProperties().getProperty('GITHUB_CLIENT_ID'))
+    .setClientSecret(PropertiesService.getScriptProperties().getProperty('GITHUB_CLIENT_SECRET'))
+    .setCallbackFunction('authCallback')
+    .setPropertyStore(PropertiesService.getUserProperties());
+}
+
+/**
+ * Callback handler that is executed after an authorization attempt.
+ * @param {Object} request The results of API auth request.
+ */
+function authCallback(request){
+  var template = HtmlService.createTemplateFromFile('callback');
+  template.isSignedIn = false;
+  template.error = null;
+  var title;
+  try {
+    var service = getGitHubService();
+    var authorized = service.handleCallback(request);
+    template.isSignedIn = authorized;
+    title = authorized ? 'Access Granted' : 'Failed to connect to service';
+  } catch (e) {
+    template.error = e;
+    title = 'Access Error';
+  }
+  template.title = title;
+  return template.evaluate().setTitle(title);
+}
+
+/**
+ * Logs the redict URI to register in the Google Developers Console.
+ */
+function logRedirectUri() {
+  Logger.log(OAuth2.getRedirectUri());
+}
+
+/**
+ * Includes the given project HTML file in the current HTML project file.
+ * Also used to include JavaScript.
+ * @param {String} filename Project file name.
+ */
+function include(filename) {
+  return HtmlService.createHtmlOutputFromFile(filename).getContent();
+}
+
 global.onInstall = onInstall;
 global.onOpen = onOpen;
 global.sidebar = sidebar;
@@ -174,3 +262,11 @@ global.getCommands = getCommands;
 global.run = run;
 global.runCommand = runCommand;
 global.saveCommands = saveCommands;
+// OAuth2 functions
+global.getOAuthConnections = getOAuthConnections;
+global.getAuthorizationUrl = getAuthorizationUrl;
+global.signOut = signOut;
+global.getGitHubService = getGitHubService;
+global.authCallback = authCallback;
+global.logRedirectUri = logRedirectUri;
+global.include = include;

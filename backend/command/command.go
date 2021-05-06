@@ -25,6 +25,7 @@ var (
 	ErrUnknownCommand  = fmt.Errorf("unknown command type")
 	errInvalidURL      = fmt.Errorf("invalid url")
 	errUnhandledParams = fmt.Errorf("unhandled params")
+	errNotAuthorized   = fmt.Errorf(`OAuth2 service not authorized. Please click the "connect" button`)
 )
 
 // Command is an individual command
@@ -37,6 +38,7 @@ type Command struct {
 type Commander interface {
 	Valid() (err error)
 	DeParameterize(params []string) (err error)
+	AddCredentials(credentials map[string]string)
 	Run() (bdy []byte, err error)
 }
 
