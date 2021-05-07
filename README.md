@@ -77,9 +77,12 @@ The easiest way to run the Data Connector Add-on is to install it from the Googl
     PropertiesService.getScriptProperties().setProperty('JWT_SECRET', 'secret');
 
     // OAuth2 Creds
-    //// GitHub
+    //// GitHub API
     PropertiesService.getScriptProperties().setProperty('GITHUB_CLIENT_ID', 'my-github-client-id');
     PropertiesService.getScriptProperties().setProperty('GITHUB_CLIENT_SECRET', 'my-github-client-secret');
+    //// Google Analytics Reporting API
+    PropertiesService.getScriptProperties().setProperty('GOOGLE_ANALYTICS_REPORTING_CLIENT_ID', 'my-google-analytics-client-id.apps.googleusercontent.com');
+    PropertiesService.getScriptProperties().setProperty('GOOGLE_ANALYTICS_REPORTING_SECRET', 'my-google-analytics-client-secret');
   }
   ```
 

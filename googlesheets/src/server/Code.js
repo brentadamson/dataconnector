@@ -169,8 +169,10 @@ const createJwt = ({ privateKey, input = {} }) => {
   return `${toSign}.${signature}`;
 };
 
-var oauthConnections = [getGitHubService];
+var oauthConnections = [getGoogleAnalyticsReportingService, getGitHubService];
+// These names should match the services defined in OAuth2.jsx
 var github = 'github';
+var googleAnalyticsReporting = 'google_analytics_reporting';
 
 /**
  * Gets the user's authorized OAuth2 connections
@@ -187,13 +189,16 @@ var github = 'github';
   return authorized;
 }
 
-
 /**
  * Builds and returns the authorization URL from the service object.
  * @return {String} The authorization URL.
  */
-function getAuthorizationUrl() {
-  return getGitHubService().getAuthorizationUrl();
+function getAuthorizationUrl(service) {
+  if(service===github){
+    return getGitHubService().getAuthorizationUrl();
+  } else if (service == googleAnalyticsReporting){
+    return getGoogleAnalyticsReportingService().getAuthorizationUrl();
+  }
 }
 
 /**
@@ -201,23 +206,11 @@ function getAuthorizationUrl() {
  * additional authorization-required API calls can be made.
  */
 function oauthSignOut(provider) {
-  if(provider === github){
+  if(provider === googleAnalyticsReporting){
+    getGoogleAnalyticsReportingService().reset();
+  } else if(provider === github){
     getGitHubService().reset();
   }
-}
-
-/**
- * Gets an OAuth2 service configured for the GitHub API.
- * @return {OAuth2.Service} The OAuth2 service
- */
-function getGitHubService(){
-  return OAuth2.createService('github')
-    .setAuthorizationBaseUrl('https://github.com/login/oauth/authorize')
-    .setTokenUrl('https://github.com/login/oauth/access_token')
-    .setClientId(PropertiesService.getScriptProperties().getProperty('GITHUB_CLIENT_ID'))
-    .setClientSecret(PropertiesService.getScriptProperties().getProperty('GITHUB_CLIENT_SECRET'))
-    .setCallbackFunction('authCallback')
-    .setPropertyStore(PropertiesService.getUserProperties());
 }
 
 /**
@@ -230,7 +223,12 @@ function authCallback(request){
   template.error = null;
   var title;
   try {
-    var service = getGitHubService();
+    var service;
+    if(request.parameters.serviceName===googleAnalyticsReporting){
+      service = getGoogleAnalyticsReportingService();
+    } else if(request.parameters.serviceName===github){
+      service = getGitHubService();
+    }
     var authorized = service.handleCallback(request);
     template.isSignedIn = authorized;
     title = authorized ? 'Access Granted' : 'Failed to connect to service';
@@ -258,6 +256,35 @@ function include(filename) {
   return HtmlService.createHtmlOutputFromFile(filename).getContent();
 }
 
+/**
+ * Gets an OAuth2 service configured for the Google Analytics Reporting API.
+ * @return {OAuth2.Service} The OAuth2 service
+ */
+ function getGoogleAnalyticsReportingService(){
+  return OAuth2.createService(googleAnalyticsReporting)
+    .setAuthorizationBaseUrl('https://accounts.google.com/o/oauth2/auth')
+    .setTokenUrl('https://accounts.google.com/o/oauth2/token')
+    .setClientId(PropertiesService.getScriptProperties().getProperty('GOOGLE_ANALYTICS_REPORTING_CLIENT_ID'))
+    .setClientSecret(PropertiesService.getScriptProperties().getProperty('GOOGLE_ANALYTICS_REPORTING_SECRET'))
+    .setCallbackFunction('authCallback')
+    .setScope('https://www.googleapis.com/auth/analytics.readonly')
+    .setPropertyStore(PropertiesService.getUserProperties());
+}
+
+/**
+ * Gets an OAuth2 service configured for the GitHub API.
+ * @return {OAuth2.Service} The OAuth2 service
+ */
+ function getGitHubService(){
+  return OAuth2.createService(github)
+    .setAuthorizationBaseUrl('https://github.com/login/oauth/authorize')
+    .setTokenUrl('https://github.com/login/oauth/access_token')
+    .setClientId(PropertiesService.getScriptProperties().getProperty('GITHUB_CLIENT_ID'))
+    .setClientSecret(PropertiesService.getScriptProperties().getProperty('GITHUB_CLIENT_SECRET'))
+    .setCallbackFunction('authCallback')
+    .setPropertyStore(PropertiesService.getUserProperties());
+}
+
 global.onInstall = onInstall;
 global.onOpen = onOpen;
 global.sidebar = sidebar;
@@ -269,7 +296,5 @@ global.saveCommands = saveCommands;
 global.getOAuthConnections = getOAuthConnections;
 global.getAuthorizationUrl = getAuthorizationUrl;
 global.oauthSignOut = oauthSignOut;
-global.getGitHubService = getGitHubService;
 global.authCallback = authCallback;
-global.logRedirectUri = logRedirectUri;
 global.include = include;

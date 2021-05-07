@@ -50,24 +50,26 @@ export default function OAuth2(props) {
   }
 
   const none = 'none';
+  // These names should match the services defined in Code.js
   const github = 'github';
+  const googleAnalyticsReporting = 'google_analytics_reporting';
 
-  function githubConnect(){
-    if(activeConnections.includes(github)){
-      serverFunctions.oauthSignOut(github).then(function(){
+  function oauthConnect(service){
+    if(activeConnections.includes(service)){
+      serverFunctions.oauthSignOut(service).then(function(){
         getOAuthConnections();
       }).catch(function(err){
         console.log(err);
       });
     } else {
-      serverFunctions.getAuthorizationUrl().then(function(authorizationUrl){
-        const newWindow = window.open(authorizationUrl, 'GitHub', 'noopener,noreferrer');
+      serverFunctions.getAuthorizationUrl(service).then(function(authorizationUrl){
+        const newWindow = window.open(authorizationUrl, service, 'noopener,noreferrer');
         if (newWindow){
           newWindow.opener = null
         };
       }).catch(function(err){
         console.log(err);
-        props.setAlertMessage('unable to connect to GitHub');
+        props.setAlertMessage('unable to connect to '+service);
       });
     }
   }
@@ -84,6 +86,25 @@ export default function OAuth2(props) {
         inputProps={{style: {fontSize: 12}}} InputLabelProps={{style: {fontSize: 12}}}
       >
         <MenuItem key={none} value="">None</MenuItem>
+        <MenuItem key={googleAnalyticsReporting} value={googleAnalyticsReporting}>
+          <Grid container spacing={3} container direction="row" alignItems="center">
+            <Grid item xs={2}>
+              <GitHubIcon />
+            </Grid>
+            <Grid item xs={4}>
+              <Typography variant="body1">Google Analytics Reporting</Typography>
+            </Grid>
+            <Grid item xs={12}>
+              <Button
+                size="small"
+                color={activeConnections.includes(googleAnalyticsReporting) ? 'default':'primary'}
+                onClick={() => oauthConnect(googleAnalyticsReporting)}
+              >
+              {activeConnections.includes(googleAnalyticsReporting) ? 'Disconnect':'Connect'}
+              </Button>
+            </Grid>
+          </Grid>
+        </MenuItem>
         <MenuItem key={github} value={github}>
           <Grid container spacing={3} container direction="row" alignItems="center">
             <Grid item xs={2}>
@@ -96,7 +117,7 @@ export default function OAuth2(props) {
               <Button
                 size="small"
                 color={activeConnections.includes(github) ? 'default':'primary'}
-                onClick={githubConnect}
+                onClick={() => oauthConnect(github)}
               >
               {activeConnections.includes(github) ? 'Disconnect':'Connect'}
               </Button>
