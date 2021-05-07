@@ -170,6 +170,7 @@ const createJwt = ({ privateKey, input = {} }) => {
 };
 
 var oauthConnections = [getGitHubService];
+var github = 'github';
 
 /**
  * Gets the user's authorized OAuth2 connections
@@ -199,8 +200,10 @@ function getAuthorizationUrl() {
  * Resets the API service, forcing re-authorization before
  * additional authorization-required API calls can be made.
  */
-function signOut() {
-  getGitHubService().reset();
+function oauthSignOut(provider) {
+  if(provider === github){
+    getGitHubService().reset();
+  }
 }
 
 /**
@@ -265,7 +268,7 @@ global.saveCommands = saveCommands;
 // OAuth2 functions
 global.getOAuthConnections = getOAuthConnections;
 global.getAuthorizationUrl = getAuthorizationUrl;
-global.signOut = signOut;
+global.oauthSignOut = oauthSignOut;
 global.getGitHubService = getGitHubService;
 global.authCallback = authCallback;
 global.logRedirectUri = logRedirectUri;

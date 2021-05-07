@@ -23,7 +23,6 @@ export default function OAuth2(props) {
   const getOAuthConnections = () => {
     // get the active OAuth2 connections the user has
     serverFunctions.getOAuthConnections().then(function(connections){
-      console.log("keys: "+JSON.stringify(connections));
       setActiveConnections([...Object.keys(connections)]);
     }).catch(function(err){
       console.log(err);
@@ -50,20 +49,28 @@ export default function OAuth2(props) {
     props.setSelectedCommand(selectedCommand);
   }
 
-  function githubConnect(){
-    serverFunctions.getAuthorizationUrl().then(function(authorizationUrl){
-      const newWindow = window.open(authorizationUrl, 'GitHub', 'noopener,noreferrer');
-      if (newWindow){
-        newWindow.opener = null
-      };
-    }).catch(function(err){
-      console.log(err);
-      props.setAlertMessage('unable to connect to GitHub');
-    });
-  }
-
   const none = 'none';
   const github = 'github';
+
+  function githubConnect(){
+    if(activeConnections.includes(github)){
+      serverFunctions.oauthSignOut(github).then(function(){
+        getOAuthConnections();
+      }).catch(function(err){
+        console.log(err);
+      });
+    } else {
+      serverFunctions.getAuthorizationUrl().then(function(authorizationUrl){
+        const newWindow = window.open(authorizationUrl, 'GitHub', 'noopener,noreferrer');
+        if (newWindow){
+          newWindow.opener = null
+        };
+      }).catch(function(err){
+        console.log(err);
+        props.setAlertMessage('unable to connect to GitHub');
+      });
+    }
+  }
 
   return (
     <div className={ classes.root }>
@@ -82,19 +89,19 @@ export default function OAuth2(props) {
             <Grid item xs={2}>
               <GitHubIcon />
             </Grid>
-            <Grid item xs={5}>
+            <Grid item xs={4}>
               <Typography variant="body1">GitHub</Typography>
             </Grid>
             <Grid item xs={2}>
               <Button
                 size="small"
-                color={'primary'}
-                disabled={activeConnections.includes(github)}
+                color={activeConnections.includes(github) ? 'default':'primary'}
                 onClick={githubConnect}
               >
-              {activeConnections.includes(github) ? 'Connected':'Connect'}
+              {activeConnections.includes(github) ? 'Disconnect':'Connect'}
               </Button>
             </Grid>
+            <Grid item xs={2}></Grid>
           </Grid>
         </MenuItem>
       </TextField> 
