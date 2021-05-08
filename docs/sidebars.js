@@ -9,6 +9,8 @@ module.exports = {
         'binance',
         'coinbase',
         'coinmarketcap',
+        'github',
+        'google-analytics',
         'pse-lookup',
         'stripe'
       ],
