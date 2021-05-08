@@ -8,6 +8,8 @@ import MenuItem from '@material-ui/core/MenuItem';
 import GitHubIcon from '@material-ui/icons/GitHub';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
+import { Icon, InlineIcon } from '@iconify/react';
+import googleAnalytics from '@iconify-icons/mdi/google-analytics';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -88,13 +90,13 @@ export default function OAuth2(props) {
         <MenuItem key={none} value="">None</MenuItem>
         <MenuItem key={googleAnalyticsReporting} value={googleAnalyticsReporting}>
           <Grid container spacing={3} container direction="row" alignItems="center">
-            <Grid item xs={2}>
-              <GitHubIcon />
+            <Grid item xs={1}>
+              <Icon icon={googleAnalytics} />
             </Grid>
             <Grid item xs={4}>
               <Typography variant="body1">Google Analytics Reporting</Typography>
             </Grid>
-            <Grid item xs={12}>
+            <Grid item xs={12} style={{paddingTop:'0px'}}>
               <Button
                 size="small"
                 color={activeConnections.includes(googleAnalyticsReporting) ? 'default':'primary'}
