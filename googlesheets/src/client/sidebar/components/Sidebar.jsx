@@ -143,6 +143,7 @@ export default function Sidebar(props) {
       }
       setSaving(false);
     }).catch(function(err){
+      console.log(err);
       setAlertMessage('Unable to save your commands. Please try again.');
       setAlertOpen(true);
       setSaving(false);
