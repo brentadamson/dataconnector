@@ -2,7 +2,6 @@ package backend
 
 import (
 	"context"
-	"dataconnector/crypto"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -10,6 +9,8 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/brentadamson/dataconnector/crypto"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/dgrijalva/jwt-go/request"

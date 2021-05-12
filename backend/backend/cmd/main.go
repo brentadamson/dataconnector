@@ -2,14 +2,15 @@ package main
 
 import (
 	"database/sql"
-	"dataconnector/backend"
-	"dataconnector/crypto"
-	"dataconnector/log"
 	"encoding/hex"
 	"fmt"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/brentadamson/dataconnector/backend"
+	"github.com/brentadamson/dataconnector/crypto"
+	"github.com/brentadamson/dataconnector/log"
 
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
