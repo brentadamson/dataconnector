@@ -1,6 +1,6 @@
-module github.com/brentadamson/dataconnector
+module github.com/brentadamson/dataconnector/backend
 
-go 1.15
+go 1.16
 
 require (
 	github.com/chromedp/cdproto v0.0.0-20210227213635-aabfe75e3e09

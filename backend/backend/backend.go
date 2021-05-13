@@ -3,9 +3,9 @@ package backend
 import (
 	"context"
 
-	"github.com/brentadamson/dataconnector/command"
-	"github.com/brentadamson/dataconnector/crypto"
-	"github.com/brentadamson/dataconnector/filter"
+	"github.com/brentadamson/dataconnector/backend/command"
+	"github.com/brentadamson/dataconnector/backend/crypto"
+	"github.com/brentadamson/dataconnector/backend/filter"
 )
 
 // Config holds configuration settings for the api

@@ -8,9 +8,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/brentadamson/dataconnector/backend"
-	"github.com/brentadamson/dataconnector/crypto"
-	"github.com/brentadamson/dataconnector/log"
+	"github.com/brentadamson/dataconnector/backend/backend"
+	"github.com/brentadamson/dataconnector/backend/crypto"
+	"github.com/brentadamson/dataconnector/backend/log"
 
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"

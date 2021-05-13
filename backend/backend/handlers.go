@@ -10,7 +10,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/brentadamson/dataconnector/crypto"
+	"github.com/brentadamson/dataconnector/backend/crypto"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/dgrijalva/jwt-go/request"
