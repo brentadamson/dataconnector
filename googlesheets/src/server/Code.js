@@ -1,3 +1,15 @@
+const scriptProperties = PropertiesService.getScriptProperties();
+const key = 'KEY';
+const domainKey = 'DOMAIN';
+const googleAnalyticsReportingClientID = 'GOOGLE_ANALYTICS_REPORTING_CLIENT_ID';
+const googleAnalyticsReportingSecret = 'GOOGLE_ANALYTICS_REPORTING_SECRET';
+const githubClientID = 'GITHUB_CLIENT_ID';
+const githubClientSecret = 'GITHUB_CLIENT_SECRET';
+
+const userProperties = PropertiesService.getUserProperties();
+const commandsKey = 'commands';
+const emailKey = 'email';
+
 export const onInstall = () => {
   onOpen();
 }
@@ -7,37 +19,39 @@ export const onOpen = () => {
 };
 
 export const sidebar = () => {
-  updateUserKey();
+  var email = Session.getActiveUser().getEmail();
+  userProperties.setProperty(emailKey, email);
+  registerUser(email);
   var html = HtmlService.createTemplateFromFile("sidebar").evaluate();
   html.setTitle("Data Connector");
-  html.key = Session.getTemporaryActiveUserKey();
-  html.email = Session.getActiveUser().getEmail();
   SpreadsheetApp.getUi().showSidebar(html);
 };
 
-// updateUserKey updates a user's temporaryActiveUserKey
-export const updateUserKey = () => {
-  // We don't necessarily need to encrypt the jwt since it will be going over HTTPS but could be good to do anyway.
-  const scriptProperties = PropertiesService.getScriptProperties();
-  const jwt = createJwt({
-    privateKey: scriptProperties.getProperty('JWT_SECRET'),
-    input: {'email':Session.getActiveUser().getEmail(),'google_key':Session.getTemporaryActiveUserKey()},
-  });
- 
+// registerUser registers a user
+export const registerUser = (email) => {
   var options = {
     'validateHttpsCertificates': false,
     'method': 'POST',
     'followRedirects': true,
     'muteHttpExceptions': true,
-    'headers' : {
-      'Authorization': 'Bearer '+jwt,
+    'contentType': 'application/json',
+    'payload': {
+      'email': email,
+      'key': scriptProperties.getProperty(key),
     },
   };
-  var response = UrlFetchApp.fetch(scriptProperties.getProperty('DOMAIN')+'/update_google_key', options).getContentText();
+  options.payload = JSON.stringify(options.payload);
+  var response = UrlFetchApp.fetch(scriptProperties.getProperty('DOMAIN')+'/user/register', options).getContentText();
   return JSON.parse(response); 
 }
 
 export const getCommands = () => {
+  var cmds = userProperties.getProperty(commandsKey);
+  if (cmds){
+    return {'response': JSON.parse(cmds)}
+  }
+
+  // TODO: remove this after all users have had a chance to save their commands in the script
   var google_key = Session.getTemporaryActiveUserKey();
   var options = {
     'validateHttpsCertificates': false,
@@ -45,8 +59,12 @@ export const getCommands = () => {
     'followRedirects': true,
     'muteHttpExceptions': false,
   };
-  var response = UrlFetchApp.fetch(PropertiesService.getScriptProperties().getProperty('DOMAIN')+'/get?google_key='+google_key, options).getContentText();
-  return JSON.parse(response); 
+  var response = UrlFetchApp.fetch(scriptProperties.getProperty(domainKey)+'/get?google_key='+google_key, options).getContentText();
+  var j = JSON.parse(response);
+  if('response' in j){
+    userProperties.setProperty(commandsKey, JSON.stringify(j['response']));
+  }
+  return j; 
 };
 
 // runCommand simply inserts the formula to run and nothing else. Maybe shouldn't call it "runCommand"?
@@ -56,17 +74,8 @@ export const runCommand = (name) => {
 };
 
 export const saveCommands = (commands) => {
-  var google_key = Session.getTemporaryActiveUserKey();
-  var options = {
-    'validateHttpsCertificates': false,
-    'method': 'POST',
-    'contentType': 'application/json',
-    'followRedirects': true,
-    'muteHttpExceptions': false,
-    'payload': JSON.stringify({"google_key": google_key, "commands": commands}),
-  };
-  var response = UrlFetchApp.fetch(PropertiesService.getScriptProperties().getProperty('DOMAIN')+'/save', options).getContentText();
-  return JSON.parse(response); 
+  userProperties.setProperty(commandsKey, JSON.stringify(commands));
+  return {'response': commands};
 };
 
 const is2dArray = array => array.every(item => Array.isArray(item));
@@ -79,20 +88,60 @@ const is2dArray = array => array.every(item => Array.isArray(item));
 * @customfunction
 */
 function run(name, args){
+  var emailFromStorage = userProperties.getProperty(emailKey);
+  if (!emailFromStorage){
+    return ['Please open the sidebar to authorize this request ("Add-ons -> Data Connector -> Manage Connections").']
+  }
+
+  var cmds = userProperties.getProperty(commandsKey);
+  if (!cmds){
+    return ['No saved commands. Please open the sidebar to create a command ("Add-ons -> Data Connector -> Manage Connections")']
+  }
+
+  cmds = JSON.parse(cmds);
+  var found = false;
+  var cmdIndex = -1;
+  var cmd = {};
+  cmds.forEach(function (item, index) {
+    if (item.name===name){
+      found = true;
+      cmdIndex = index;
+      cmd = JSON.parse(JSON.stringify(item));
+    }
+  });
+
+  if(!found){
+    return ['Could not find a Data Connector command with name "'+name+'"']; 
+  }
+
   var options = {
     'validateHttpsCertificates': false,
     'method': 'POST',
     'followRedirects': true,
     'muteHttpExceptions': false,
+    'contentType': 'application/json',
     'payload': {
-      'google_key': Session.getTemporaryActiveUserKey(),
-      // TODO: We won't have to get every access token once we start storing everything in PropertiesService...
-      'credentials': getOAuthConnections(),
-      'command_name': name,
-      'params': [],    
+      'command': cmd,
+      'email': emailFromStorage,
+      'command_number': cmdIndex,
+      'params': [],
+      'key': scriptProperties.getProperty(key),
     }
   };
-  
+
+  // Set OAuth2 header, if applicable
+  if(cmd.command.command.provider && cmd.command.command.provider != ''){
+    var connections = getOAuthConnections();
+    if(cmd.command.command.provider in connections){
+      if(!cmd.command.command.headers){
+        cmd.command.command.headers = [];
+      }
+      cmd.command.command.headers.push({'Key':'Authorization','Value':'Bearer '+connections[cmd.command.command.provider]})
+    } else {
+      return ['Data Connector error: OAuth2 Header for '+cmd.command.command.provider+'not found. Please connect to '+cmd.command.command.provider];
+    }
+  }
+
   // there's 2 ways to pass parameters:
   // 1. "1,2,3,4" // Note: if it is only 1 cell reference it gets passed in as a string, NOT a cell reference
   // 2. [["1", "2", "3", "4"]]
@@ -111,7 +160,7 @@ function run(name, args){
   }
   
   options.payload = JSON.stringify(options.payload);
-  var response = UrlFetchApp.fetch(PropertiesService.getScriptProperties().getProperty('DOMAIN')+'/run', options).getContentText();
+  var response = UrlFetchApp.fetch(scriptProperties.getProperty(domainKey)+'/sheets_run', options).getContentText();
   try {
     var rsp = JSON.parse(response);
     if ('error' in rsp && rsp.error != ''){
@@ -128,46 +177,6 @@ function run(name, args){
     return [['data connector error: invalid JSON']];
   }
 }
-
-// https://vanchiv.com/create-json-web-token-using-google-apps-script/
-const createJwt = ({ privateKey, input = {} }) => {
-  // Sign token using HMAC with SHA-256 algorithm
-  const header = {
-    alg: 'HS256',
-    typ: 'JWT',
-  };
-
-  const now = Date.now();
-  const expires = new Date(now);
-
-  // we don't need it to last for hours
-  // expires.setHours(expires.getHours() + expiresInHours);
-  expires.setMinutes(expires.getMinutes() + 1);
-
-  // iat = issued time, exp = expiration time
-  const payload = {
-    exp: Math.round(expires.getTime() / 1000),
-    iat: Math.round(now / 1000),
-  };
-
-  // add user payload
-  Object.keys(input).forEach(function (key) {
-    payload[key] = input[key];
-  });
-
-  const base64Encode = (text, json = true) => {
-    const input = json ? JSON.stringify(text) : text;
-    return Utilities.base64EncodeWebSafe(input).replace(/=+$/, '');
-  };
-
-  const toSign = `${base64Encode(header)}.${base64Encode(payload)}`;
-  const signatureBytes = Utilities.computeHmacSha256Signature(
-    toSign,
-    privateKey
-  );
-  const signature = base64Encode(signatureBytes, false);
-  return `${toSign}.${signature}`;
-};
 
 var oauthConnections = [getGoogleAnalyticsReportingService, getGitHubService];
 // These names should match the services defined in OAuth2.jsx
@@ -264,11 +273,11 @@ function include(filename) {
   return OAuth2.createService(googleAnalyticsReporting)
     .setAuthorizationBaseUrl('https://accounts.google.com/o/oauth2/auth')
     .setTokenUrl('https://accounts.google.com/o/oauth2/token')
-    .setClientId(PropertiesService.getScriptProperties().getProperty('GOOGLE_ANALYTICS_REPORTING_CLIENT_ID'))
-    .setClientSecret(PropertiesService.getScriptProperties().getProperty('GOOGLE_ANALYTICS_REPORTING_SECRET'))
+    .setClientId(scriptProperties.getProperty(googleAnalyticsReportingClientID))
+    .setClientSecret(scriptProperties.getProperty(googleAnalyticsReportingSecret))
     .setCallbackFunction('authCallback')
     .setScope('https://www.googleapis.com/auth/analytics.readonly')
-    .setPropertyStore(PropertiesService.getUserProperties());
+    .setPropertyStore(userProperties);
 }
 
 /**
@@ -279,10 +288,10 @@ function include(filename) {
   return OAuth2.createService(github)
     .setAuthorizationBaseUrl('https://github.com/login/oauth/authorize')
     .setTokenUrl('https://github.com/login/oauth/access_token')
-    .setClientId(PropertiesService.getScriptProperties().getProperty('GITHUB_CLIENT_ID'))
-    .setClientSecret(PropertiesService.getScriptProperties().getProperty('GITHUB_CLIENT_SECRET'))
+    .setClientId(scriptProperties.getProperty(githubClientID))
+    .setClientSecret(scriptProperties.getProperty(githubClientSecret))
     .setCallbackFunction('authCallback')
-    .setPropertyStore(PropertiesService.getUserProperties());
+    .setPropertyStore(userProperties);
 }
 
 global.onInstall = onInstall;

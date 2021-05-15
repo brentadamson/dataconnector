@@ -94,22 +94,6 @@ func (d *Direct) Run() ([]byte, error) {
 		req.Header.Add(header.Key, header.Value)
 	}
 
-	// Handle OAuth2 requests
-	if d.Provider != "" {
-		var found bool
-		for connection, token := range d.credentials {
-			if connection == d.Provider {
-				found = true
-				req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
-			}
-		}
-		// If a Provider is specified but the creds weren't passed in, that likely means the user needs to authorize the service in Sheets
-		// This isn't ideal. Will be better/less confusing when we store commands in the Sheets script itself
-		if !found {
-			return nil, errNotAuthorized
-		}
-	}
-
 	resp, err := d.Client.Do(req)
 	if err != nil {
 		return nil, err

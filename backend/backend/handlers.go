@@ -11,20 +11,62 @@ import (
 	"strings"
 
 	"github.com/brentadamson/dataconnector/backend/crypto"
+	"github.com/brentadamson/log"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/dgrijalva/jwt-go/request"
 )
 
 var (
+	errUnauthorized             = fmt.Errorf("unauthorized")
 	errInvalidGoogleKey         = fmt.Errorf("invalid Google key")
+	errInvalidEmail             = fmt.Errorf("invalid email address")
 	errInvalidJWT               = fmt.Errorf("invalid JSON Web Token")
+	errUnableToRegisterUser     = fmt.Errorf("unable to register user")
 	errUnableToUpdateGoogleKey  = fmt.Errorf("unable to update Google key")
 	errInvalidCommand           = fmt.Errorf("invalid command")
 	errDuplicateCommandName     = fmt.Errorf("duplicate command name")
 	errUnableToRetrieveCommands = fmt.Errorf("unable to retrieve commands")
 	errUnableToSaveCommands     = fmt.Errorf("unable to save commands")
 )
+
+func (cfg *Config) RegisterUserHandler(r *http.Request) (rsp *Response) {
+	rsp = &Response{
+		status:   http.StatusOK,
+		template: "json",
+	}
+
+	user := struct {
+		Email string `json:"email"`
+		Key   string `json:"key"`
+	}{}
+
+	err := json.NewDecoder(r.Body).Decode(&user)
+	if err != nil {
+		log.Info.Println(err)
+		rsp.status = http.StatusInternalServerError
+		return rsp
+	}
+
+	if user.Key != cfg.Key {
+		rsp.Error = errUnauthorized
+		return rsp
+	}
+
+	// not even sure if this is needed but I guess doesn't hurt
+	user.Email, err = url.QueryUnescape(user.Email)
+	if user.Email == "" || err != nil {
+		rsp.Error = errInvalidEmail
+		return rsp
+	}
+
+	if err := cfg.Backender.registerUser(context.Background(), user.Email); err != nil {
+		rsp.Error = errUnableToRegisterUser
+		return rsp
+	}
+
+	return
+}
 
 // UpdateGoogleKeyHandler updates a user's Google Sheets API Key
 func (cfg *Config) UpdateGoogleKeyHandler(r *http.Request) (rsp *Response) {
@@ -126,6 +168,72 @@ func (cfg *Config) getCommands(googleKey string) (cmds commandFilterSlice, err e
 	}
 
 	return
+}
+
+// RunSheetsHandler runs a single command (for Google Sheets)
+// curl -XPOST 'http://127.0.0.1:8000/sheets_run' -d '{"command_number":2.0, "params":["123"], "email":"me@example.com", "command":{"name":"my command","filter":{"type":"jmespath","filter":{"expression":""}},"command":{"type":"direct","command":{"method":"get","url":"https://example.com"}}},"key":"1234567"}'
+func (cfg *Config) RunSheetsHandler(r *http.Request) (rsp *Response) {
+	rsp = &Response{
+		status:   http.StatusOK,
+		template: "json",
+	}
+
+	uc := struct {
+		Email         string        `json:"email"`
+		CommandFilter commandFilter `json:"command"`
+		CommandNumber float64       `json:"command_number"`
+		Params        []string      `json:"params"`
+		Key           string        `json:"key"`
+	}{}
+
+	err := json.NewDecoder(r.Body).Decode(&uc)
+	if err != nil {
+		log.Info.Println(err)
+		rsp.status = http.StatusInternalServerError
+		return rsp
+	}
+
+	if uc.Key != cfg.Key {
+		rsp.Error = errUnauthorized
+		return rsp
+	}
+
+	// not even sure if this is needed but I guess doesn't hurt
+	uc.Email, err = url.QueryUnescape(uc.Email)
+	if uc.Email == "" || err != nil {
+		rsp.Error = errInvalidEmail
+		return rsp
+	}
+
+	if rsp.Error = uc.CommandFilter.Command.Valid(); rsp.Error != nil {
+		return rsp
+	}
+
+	if rsp.Error = uc.CommandFilter.Command.DeParameterize(uc.Params); rsp.Error != nil {
+		return rsp
+	}
+
+	var bdy []byte
+	bdy, rsp.Error = uc.CommandFilter.Command.Run()
+	if rsp.Error != nil {
+		rsp.Error = fmt.Errorf("%s:%q", rsp.Error, string(bdy))
+		return rsp
+	}
+
+	// filter the data
+	if rsp.Error = uc.CommandFilter.Filter.StripUnsafe(); rsp.Error != nil {
+		return rsp
+	}
+
+	var out interface{}
+	out, rsp.Error = uc.CommandFilter.Filter.Run(bdy)
+	if rsp.Error != nil {
+		rsp.Error = fmt.Errorf("%s:%q", rsp.Error, string(bdy))
+		return rsp
+	}
+
+	rsp.Response = out
+	return rsp
 }
 
 // RunHandler runs a single, named command

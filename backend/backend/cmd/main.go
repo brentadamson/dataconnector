@@ -56,6 +56,7 @@ func main() {
 		Encrypt:   aes.Encrypt,
 		Decrypt:   aes.Decrypt,
 		JWTSecret: v.GetString("jwt.secret"),
+		Key:       v.GetString("key"),
 	}
 
 	if err := cfg.Backender.Setup(); err != nil {
@@ -63,11 +64,17 @@ func main() {
 	}
 
 	router := mux.NewRouter().StrictSlash(true)
+	router.NewRoute().Name("register_user").Methods("POST").Path("/user/register").Handler(
+		backend.AppHandler(cfg.RegisterUserHandler),
+	)
 	router.NewRoute().Name("update_google_key").Methods("POST").Path("/update_google_key").Handler(
 		backend.AppHandler(cfg.UpdateGoogleKeyHandler),
 	)
 	router.NewRoute().Name("get").Methods("GET").Path("/get").Handler(
 		backend.AppHandler(cfg.GetHandler),
+	)
+	router.NewRoute().Name("sheets_run").Methods("POST").Path("/sheets_run").Handler(
+		backend.AppHandler(cfg.RunSheetsHandler),
 	)
 	router.NewRoute().Name("run").Methods("POST").Path("/run").Handler(
 		backend.AppHandler(cfg.RunHandler),

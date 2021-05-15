@@ -3,6 +3,7 @@ module github.com/brentadamson/dataconnector/backend
 go 1.16
 
 require (
+	github.com/brentadamson/log v0.0.0-20210512231328-6c0072b0f216 // indirect
 	github.com/chromedp/cdproto v0.0.0-20210227213635-aabfe75e3e09
 	github.com/chromedp/chromedp v0.6.6
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible

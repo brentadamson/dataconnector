@@ -220,22 +220,6 @@ func TestDirectRun(t *testing.T) {
 			want:    `{"result":"done"}`,
 			wantErr: nil,
 		},
-		{
-			name: "unauthorized OAuth2 connection returns error",
-			direct: &Direct{
-				Client:      &mockClient{},
-				Method:      GET,
-				Body:        "request body",
-				Provider:    "provider2",
-				credentials: map[string]string{"provider1": "1234567"},
-				Web: Web{
-					URL:     "https://www.example.com/1",
-					Headers: []Header{},
-				},
-			},
-			want:    "",
-			wantErr: errNotAuthorized,
-		},
 	} {
 		t.Run(c.name, func(t *testing.T) {
 			got, gotErr := c.direct.Run()

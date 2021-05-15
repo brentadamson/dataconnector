@@ -14,11 +14,13 @@ type Config struct {
 	Encrypt   crypto.Encryptor
 	Decrypt   crypto.Decryptor
 	JWTSecret string
+	Key       string
 }
 
 // Backender outlines methods to store and retrieve saved commands
 type Backender interface {
 	upsertUser(ctx context.Context, email, googleKey string) (err error)
+	registerUser(ctx context.Context, email string) (err error)
 	getCommands(ctx context.Context, googleKey string) (encryptedCommands []byte, err error)
 	saveCommands(ctx context.Context, googleKey string, encryptedCommands []byte) (err error)
 	Setup() (err error)
