@@ -1,4 +1,3 @@
-const scriptProperties = PropertiesService.getScriptProperties();
 const key = 'KEY';
 const domainKey = 'DOMAIN';
 const googleAnalyticsReportingClientID = 'GOOGLE_ANALYTICS_REPORTING_CLIENT_ID';
@@ -6,7 +5,6 @@ const googleAnalyticsReportingSecret = 'GOOGLE_ANALYTICS_REPORTING_SECRET';
 const githubClientID = 'GITHUB_CLIENT_ID';
 const githubClientSecret = 'GITHUB_CLIENT_SECRET';
 
-const userProperties = PropertiesService.getUserProperties();
 const commandsKey = 'commands';
 const emailKey = 'email';
 
@@ -19,6 +17,7 @@ export const onOpen = () => {
 };
 
 export const sidebar = () => {
+  const userProperties = PropertiesService.getUserProperties();
   var email = Session.getActiveUser().getEmail();
   userProperties.setProperty(emailKey, email);
   registerUser(email);
@@ -29,6 +28,7 @@ export const sidebar = () => {
 
 // registerUser registers a user
 export const registerUser = (email) => {
+  const scriptProperties = PropertiesService.getScriptProperties();
   var options = {
     'validateHttpsCertificates': false,
     'method': 'POST',
@@ -46,6 +46,8 @@ export const registerUser = (email) => {
 }
 
 export const getCommands = () => {
+  const scriptProperties = PropertiesService.getScriptProperties();
+  const userProperties = PropertiesService.getUserProperties();
   var cmds = userProperties.getProperty(commandsKey);
   if (cmds){
     return {'response': JSON.parse(cmds)}
@@ -74,6 +76,7 @@ export const runCommand = (name) => {
 };
 
 export const saveCommands = (commands) => {
+  const userProperties = PropertiesService.getUserProperties();
   userProperties.setProperty(commandsKey, JSON.stringify(commands));
   return {'response': commands};
 };
@@ -88,6 +91,8 @@ const is2dArray = array => array.every(item => Array.isArray(item));
 * @customfunction
 */
 function run(name, args){
+  const scriptProperties = PropertiesService.getScriptProperties();
+  const userProperties = PropertiesService.getUserProperties();
   var emailFromStorage = userProperties.getProperty(emailKey);
   if (!emailFromStorage){
     return ['Please open the sidebar to authorize this request ("Add-ons -> Data Connector -> Manage Connections").']
@@ -270,6 +275,8 @@ function include(filename) {
  * @return {OAuth2.Service} The OAuth2 service
  */
  function getGoogleAnalyticsReportingService(){
+  const scriptProperties = PropertiesService.getScriptProperties();
+  const userProperties = PropertiesService.getUserProperties();
   return OAuth2.createService(googleAnalyticsReporting)
     .setAuthorizationBaseUrl('https://accounts.google.com/o/oauth2/auth')
     .setTokenUrl('https://accounts.google.com/o/oauth2/token')
@@ -285,6 +292,8 @@ function include(filename) {
  * @return {OAuth2.Service} The OAuth2 service
  */
  function getGitHubService(){
+  const scriptProperties = PropertiesService.getScriptProperties();
+  const userProperties = PropertiesService.getUserProperties();
   return OAuth2.createService(github)
     .setAuthorizationBaseUrl('https://github.com/login/oauth/authorize')
     .setTokenUrl('https://github.com/login/oauth/access_token')
