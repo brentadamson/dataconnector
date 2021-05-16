@@ -57,6 +57,7 @@ func main() {
 		Decrypt:   aes.Decrypt,
 		JWTSecret: v.GetString("jwt.secret"),
 		Key:       v.GetString("key"),
+		UserFn:    func(email string) error { return nil },
 	}
 
 	if err := cfg.Backender.Setup(); err != nil {

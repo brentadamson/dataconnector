@@ -186,9 +186,9 @@ func (cfg *Config) RunSheetsHandler(r *http.Request) (rsp *Response) {
 		Key           string        `json:"key"`
 	}{}
 
-	err := json.NewDecoder(r.Body).Decode(&uc)
-	if err != nil {
-		log.Info.Println(err)
+	rsp.Error = json.NewDecoder(r.Body).Decode(&uc)
+	if rsp.Error != nil {
+		log.Info.Println(rsp.Error)
 		rsp.status = http.StatusInternalServerError
 		return rsp
 	}
@@ -199,10 +199,18 @@ func (cfg *Config) RunSheetsHandler(r *http.Request) (rsp *Response) {
 	}
 
 	// not even sure if this is needed but I guess doesn't hurt
+	var err error
 	uc.Email, err = url.QueryUnescape(uc.Email)
 	if uc.Email == "" || err != nil {
 		rsp.Error = errInvalidEmail
 		return rsp
+	}
+
+	// Optional check user status
+	if cfg.UserFn != nil {
+		if rsp.Error = cfg.UserFn(uc.Email); rsp.Error != nil {
+			return rsp
+		}
 	}
 
 	if rsp.Error = uc.CommandFilter.Command.Valid(); rsp.Error != nil {

@@ -15,6 +15,7 @@ type Config struct {
 	Decrypt   crypto.Decryptor
 	JWTSecret string
 	Key       string
+	UserFn    func(email string) error
 }
 
 // Backender outlines methods to store and retrieve saved commands
