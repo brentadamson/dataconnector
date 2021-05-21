@@ -12,7 +12,8 @@ module.exports = {
         'github',
         'google-analytics',
         'pse-lookup',
-        'stripe'
+        'stripe',
+        'yahoo-finance'
       ],
     },
   ],
