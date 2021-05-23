@@ -183,10 +183,11 @@ function run(name, args){
   }
 }
 
-var oauthConnections = [getGoogleAnalyticsReportingService, getGitHubService];
+var oauthConnections = [getGoogleAnalyticsReportingService, getGitHubService, getYouTubeService];
 // These names should match the services defined in OAuth2.jsx
 var github = 'github';
 var googleAnalyticsReporting = 'google_analytics_reporting';
+var youtube = 'youtube';
 
 /**
  * Gets the user's authorized OAuth2 connections
@@ -212,6 +213,8 @@ function getAuthorizationUrl(service) {
     return getGitHubService().getAuthorizationUrl();
   } else if (service == googleAnalyticsReporting){
     return getGoogleAnalyticsReportingService().getAuthorizationUrl();
+  } else if (service == youtube){
+    return getYouTubeService().getAuthorizationUrl();
   }
 }
 
@@ -224,6 +227,8 @@ function oauthSignOut(provider) {
     getGoogleAnalyticsReportingService().reset();
   } else if(provider === github){
     getGitHubService().reset();
+  } else if(provider === youtube){
+    getYouTubeService().reset();
   }
 }
 
@@ -242,6 +247,8 @@ function authCallback(request){
       service = getGoogleAnalyticsReportingService();
     } else if(request.parameters.serviceName===github){
       service = getGitHubService();
+    } else if(request.parameters.serviceName===youtube){
+      service = getYouTubeService();
     }
     var authorized = service.handleCallback(request);
     template.isSignedIn = authorized;
@@ -301,6 +308,23 @@ function include(filename) {
     .setClientSecret(scriptProperties.getProperty(githubClientSecret))
     .setCallbackFunction('authCallback')
     .setPropertyStore(userProperties);
+}
+
+/**
+ * Gets an OAuth2 service configured for the YouTube API.
+ * @return {OAuth2.Service} The OAuth2 service
+ */
+ function getYouTubeService(){
+  const scriptProperties = PropertiesService.getScriptProperties();
+  const userProperties = PropertiesService.getUserProperties();
+  return OAuth2.createService(youtube)
+  .setAuthorizationBaseUrl('https://accounts.google.com/o/oauth2/auth')
+  .setTokenUrl('https://accounts.google.com/o/oauth2/token')
+  .setClientId(scriptProperties.getProperty(googleAnalyticsReportingClientID))
+  .setClientSecret(scriptProperties.getProperty(googleAnalyticsReportingSecret))
+  .setCallbackFunction('authCallback')
+  .setScope('https://www.googleapis.com/auth/youtube.readonly')
+  .setPropertyStore(userProperties);
 }
 
 global.onInstall = onInstall;

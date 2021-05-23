@@ -10,6 +10,7 @@ import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import { Icon, InlineIcon } from '@iconify/react';
 import googleAnalytics from '@iconify-icons/mdi/google-analytics';
+import youtubeIcon from '@iconify-icons/mdi/youtube';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -55,6 +56,7 @@ export default function OAuth2(props) {
   // These names should match the services defined in Code.js
   const github = 'github';
   const googleAnalyticsReporting = 'google_analytics_reporting';
+  const youtube = 'youtube';
 
   function oauthConnect(service){
     if(activeConnections.includes(service)){
@@ -125,6 +127,25 @@ export default function OAuth2(props) {
               </Button>
             </Grid>
             <Grid item xs={2}></Grid>
+          </Grid>
+        </MenuItem>
+        <MenuItem key={youtube} value={youtube}>
+          <Grid container spacing={3} container direction="row" alignItems="center">
+            <Grid item xs={2}>
+              <Icon icon={youtubeIcon} />
+            </Grid>
+            <Grid item xs={4}>
+              <Typography variant="body1">YouTube</Typography>
+            </Grid>
+            <Grid item xs={2}>
+              <Button
+                size="small"
+                color={activeConnections.includes(youtube) ? 'default':'primary'}
+                onClick={() => oauthConnect(youtube)}
+              >
+              {activeConnections.includes(youtube) ? 'Disconnect':'Connect'}
+              </Button>
+            </Grid>
           </Grid>
         </MenuItem>
       </TextField> 
