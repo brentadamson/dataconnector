@@ -13,7 +13,8 @@ module.exports = {
         'google-analytics',
         'pse-lookup',
         'stripe',
-        'yahoo-finance'
+        'yahoo-finance',
+        'youtube'
       ],
     },
   ],
