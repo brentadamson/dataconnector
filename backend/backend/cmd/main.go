@@ -10,7 +10,7 @@ import (
 
 	"github.com/brentadamson/dataconnector/backend/backend"
 	"github.com/brentadamson/dataconnector/backend/crypto"
-	"github.com/brentadamson/dataconnector/backend/log"
+	"github.com/brentadamson/log"
 
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
@@ -57,7 +57,6 @@ func main() {
 		Decrypt:   aes.Decrypt,
 		JWTSecret: v.GetString("jwt.secret"),
 		Key:       v.GetString("key"),
-		UserFn:    func(email string) error { return nil },
 	}
 
 	if err := cfg.Backender.Setup(); err != nil {

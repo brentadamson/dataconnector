@@ -312,7 +312,7 @@ func TestRunSheetsHandler(t *testing.T) {
 	}{
 		{
 			name:        "can run a user's command",
-			requestBody: `{"email":"123@gmail.com","command_number":2.0,"command_name":"first command","params":["1","2","3"],"command":{"name":"my command","filter":{"type":"jmespath","filter":{"expression":""}},"command":{"type":"direct","command":{"method":"get","url":"https://www.example.com"}}},"key":"1234567"}`,
+			requestBody: `{"email":"123@gmail.com","command_number":2,"command_name":"first command","params":["1","2","3"],"command":{"name":"my command","filter":{"type":"jmespath","filter":{"expression":""}},"command":{"type":"direct","command":{"method":"get","url":"https://www.example.com"}}},"key":"1234567"}`,
 			want: &Response{
 				status:   http.StatusOK,
 				template: "json",
@@ -321,7 +321,7 @@ func TestRunSheetsHandler(t *testing.T) {
 		},
 		{
 			name:        "invalid key should fail",
-			requestBody: `{"email":"123@gmail.com","command_number":2.0,"command_name":"first command","params":["1","2","3"],"command":{"name":"my command","filter":{"type":"jmespath","filter":{"expression":""}},"command":{"type":"direct","command":{"method":"get","url":"https://www.example.com"}}},"key":"12345678"}`,
+			requestBody: `{"email":"123@gmail.com","command_number":2,"command_name":"first command","params":["1","2","3"],"command":{"name":"my command","filter":{"type":"jmespath","filter":{"expression":""}},"command":{"type":"direct","command":{"method":"get","url":"https://www.example.com"}}},"key":"12345678"}`,
 			want: &Response{
 				status:   http.StatusOK,
 				template: "json",

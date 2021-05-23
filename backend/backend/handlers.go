@@ -171,7 +171,7 @@ func (cfg *Config) getCommands(googleKey string) (cmds commandFilterSlice, err e
 }
 
 // RunSheetsHandler runs a single command (for Google Sheets)
-// curl -XPOST 'http://127.0.0.1:8000/sheets_run' -d '{"command_number":2.0, "params":["123"], "email":"me@example.com", "command":{"name":"my command","filter":{"type":"jmespath","filter":{"expression":""}},"command":{"type":"direct","command":{"method":"get","url":"https://example.com"}}},"key":"1234567"}'
+// curl -XPOST 'http://127.0.0.1:8000/sheets_run' -d '{"command_number":2, "params":["123"], "email":"me@example.com", "command":{"name":"my command","filter":{"type":"jmespath","filter":{"expression":""}},"command":{"type":"direct","command":{"method":"get","url":"https://example.com"}}},"key":"1234567"}'
 func (cfg *Config) RunSheetsHandler(r *http.Request) (rsp *Response) {
 	rsp = &Response{
 		status:   http.StatusOK,
@@ -181,7 +181,7 @@ func (cfg *Config) RunSheetsHandler(r *http.Request) (rsp *Response) {
 	uc := struct {
 		Email         string        `json:"email"`
 		CommandFilter commandFilter `json:"command"`
-		CommandNumber float64       `json:"command_number"`
+		CommandNumber int           `json:"command_number"`
 		Params        []string      `json:"params"`
 		Key           string        `json:"key"`
 	}{}
@@ -208,7 +208,7 @@ func (cfg *Config) RunSheetsHandler(r *http.Request) (rsp *Response) {
 
 	// Optional check user status
 	if cfg.UserFn != nil {
-		if rsp.Error = cfg.UserFn(uc.Email); rsp.Error != nil {
+		if rsp.Error = cfg.UserFn(uc.Email, uc.CommandNumber); rsp.Error != nil {
 			return rsp
 		}
 	}
