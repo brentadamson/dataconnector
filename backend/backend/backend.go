@@ -29,8 +29,8 @@ type Backender interface {
 
 // Response is the http response to a request
 type Response struct {
-	status      int
-	template    string
+	Status      int         `json:"-"`
+	Template    string      `json:"-"`
 	Response    interface{} `json:"response,omitempty"`
 	Error       error       `json:"-"`
 	ErrorString string      `json:"error,omitempty"`

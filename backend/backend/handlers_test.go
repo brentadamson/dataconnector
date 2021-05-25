@@ -90,8 +90,8 @@ func TestRegisterUserHandler(t *testing.T) {
 			Key:   "1234567",
 			Email: "abc@example.com",
 			want: &Response{
-				status:   http.StatusOK,
-				template: "json",
+				Status:   http.StatusOK,
+				Template: "json",
 			},
 		},
 		{
@@ -99,8 +99,8 @@ func TestRegisterUserHandler(t *testing.T) {
 			Key:   "12345678",
 			Email: "abc@example.com",
 			want: &Response{
-				status:   http.StatusOK,
-				template: "json",
+				Status:   http.StatusOK,
+				Template: "json",
 				Error:    errUnauthorized,
 			},
 		},
@@ -108,8 +108,8 @@ func TestRegisterUserHandler(t *testing.T) {
 			name: "missing email should fail",
 			Key:  "1234567",
 			want: &Response{
-				status:   http.StatusOK,
-				template: "json",
+				Status:   http.StatusOK,
+				Template: "json",
 				Error:    errInvalidEmail,
 			},
 		},
@@ -118,8 +118,8 @@ func TestRegisterUserHandler(t *testing.T) {
 			Key:   "1234567",
 			Email: "should_fail",
 			want: &Response{
-				status:   http.StatusOK,
-				template: "json",
+				Status:   http.StatusOK,
+				Template: "json",
 				Error:    errUnableToRegisterUser,
 			},
 		},
@@ -167,8 +167,8 @@ func TestUpdateGoogleKeyHandler(t *testing.T) {
 				"google_key": "a temporary google user key",
 			},
 			want: &Response{
-				status:   http.StatusOK,
-				template: "json",
+				Status:   http.StatusOK,
+				Template: "json",
 			},
 		},
 		{
@@ -180,8 +180,8 @@ func TestUpdateGoogleKeyHandler(t *testing.T) {
 				"google_key": "a temporary google user key",
 			},
 			want: &Response{
-				status:   http.StatusOK,
-				template: "json",
+				Status:   http.StatusOK,
+				Template: "json",
 				Error:    errInvalidJWT,
 			},
 		},
@@ -195,8 +195,8 @@ func TestUpdateGoogleKeyHandler(t *testing.T) {
 				"google_key": "a temporary google user key",
 			},
 			want: &Response{
-				status:   http.StatusOK,
-				template: "json",
+				Status:   http.StatusOK,
+				Template: "json",
 				Error:    errInvalidJWT,
 			},
 		},
@@ -209,8 +209,8 @@ func TestUpdateGoogleKeyHandler(t *testing.T) {
 				"google_key": "a temporary google user key",
 			},
 			want: &Response{
-				status:   http.StatusOK,
-				template: "json",
+				Status:   http.StatusOK,
+				Template: "json",
 				Error:    errInvalidJWT,
 			},
 		},
@@ -223,8 +223,8 @@ func TestUpdateGoogleKeyHandler(t *testing.T) {
 				"google_key": "1234567",
 			},
 			want: &Response{
-				status:   http.StatusOK,
-				template: "json",
+				Status:   http.StatusOK,
+				Template: "json",
 				Error:    errInvalidJWT,
 			},
 		},
@@ -237,8 +237,8 @@ func TestUpdateGoogleKeyHandler(t *testing.T) {
 				"not_google_key": "a temporary google user key",
 			},
 			want: &Response{
-				status:   http.StatusOK,
-				template: "json",
+				Status:   http.StatusOK,
+				Template: "json",
 				Error:    errInvalidJWT,
 			},
 		},
@@ -251,8 +251,8 @@ func TestUpdateGoogleKeyHandler(t *testing.T) {
 				"google_key": 1,
 			},
 			want: &Response{
-				status:   http.StatusOK,
-				template: "json",
+				Status:   http.StatusOK,
+				Template: "json",
 				Error:    errInvalidJWT,
 			},
 		},
@@ -265,8 +265,8 @@ func TestUpdateGoogleKeyHandler(t *testing.T) {
 				"google_key": "1234567",
 			},
 			want: &Response{
-				status:   http.StatusOK,
-				template: "json",
+				Status:   http.StatusOK,
+				Template: "json",
 				Error:    errUnableToUpdateGoogleKey,
 			},
 		},
@@ -314,8 +314,8 @@ func TestRunSheetsHandler(t *testing.T) {
 			name:        "can run a user's command",
 			requestBody: `{"email":"123@gmail.com","command_number":2,"command_name":"first command","params":["1","2","3"],"command":{"name":"my command","filter":{"type":"jmespath","filter":{"expression":""}},"command":{"type":"direct","command":{"method":"get","url":"https://www.example.com"}}},"key":"1234567"}`,
 			want: &Response{
-				status:   http.StatusOK,
-				template: "json",
+				Status:   http.StatusOK,
+				Template: "json",
 				Response: `"mock command was run"`,
 			},
 		},
@@ -323,8 +323,8 @@ func TestRunSheetsHandler(t *testing.T) {
 			name:        "invalid key should fail",
 			requestBody: `{"email":"123@gmail.com","command_number":2,"command_name":"first command","params":["1","2","3"],"command":{"name":"my command","filter":{"type":"jmespath","filter":{"expression":""}},"command":{"type":"direct","command":{"method":"get","url":"https://www.example.com"}}},"key":"12345678"}`,
 			want: &Response{
-				status:   http.StatusOK,
-				template: "json",
+				Status:   http.StatusOK,
+				Template: "json",
 				Error:    errUnauthorized,
 			},
 		},
@@ -359,8 +359,8 @@ func TestRunHandler(t *testing.T) {
 			name:        "can run a user's command",
 			requestBody: `{"google_key":"123","command_name":"first command","params":["1","2","3"],"credentials":{"github":"1234567"}}`,
 			want: &Response{
-				status:   http.StatusOK,
-				template: "json",
+				Status:   http.StatusOK,
+				Template: "json",
 				Response: `"mock command was run"`,
 			},
 		},
@@ -397,8 +397,8 @@ func TestGetHandler(t *testing.T) {
 			name:      "can get a user's commands",
 			googleKey: "123",
 			want: &Response{
-				status:   http.StatusOK,
-				template: "json",
+				Status:   http.StatusOK,
+				Template: "json",
 				Response: commandFilterSlice{
 					{
 						Name: "first command",
@@ -447,8 +447,8 @@ func TestSaveHandler(t *testing.T) {
 			name:        "can save a command",
 			requestBody: `"command1"`,
 			want: &Response{
-				status:   http.StatusOK,
-				template: "json",
+				Status:   http.StatusOK,
+				Template: "json",
 				Response: commandFilterSlice{
 					{
 						Name: "first command",

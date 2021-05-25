@@ -23,7 +23,7 @@ type AppHandler func(*http.Request) (rsp *Response)
 
 func (fn AppHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if rsp := fn(r); rsp != nil {
-		switch rsp.status {
+		switch rsp.Status {
 		case http.StatusOK:
 			buf := bufpool.Get()
 			defer bufpool.Put(buf)
@@ -35,7 +35,7 @@ func (fn AppHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				rsp.ErrorString = rsp.Error.Error()
 			}
 
-			switch rsp.template {
+			switch rsp.Template {
 			case "json":
 				w.Header().Set("Content-Type", "application/json")
 				if err := json.NewEncoder(buf).Encode(rsp); err != nil {
@@ -43,7 +43,7 @@ func (fn AppHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					return
 				}
 			default:
-				d = fmt.Errorf("invalid template %q", rsp.template)
+				d = fmt.Errorf("invalid template %q", rsp.Template)
 				if err := json.NewEncoder(buf).Encode(d); err != nil {
 					http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 					return

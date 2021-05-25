@@ -32,8 +32,8 @@ var (
 
 func (cfg *Config) RegisterUserHandler(r *http.Request) (rsp *Response) {
 	rsp = &Response{
-		status:   http.StatusOK,
-		template: "json",
+		Status:   http.StatusOK,
+		Template: "json",
 	}
 
 	user := struct {
@@ -44,7 +44,7 @@ func (cfg *Config) RegisterUserHandler(r *http.Request) (rsp *Response) {
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
 		log.Info.Println(err)
-		rsp.status = http.StatusInternalServerError
+		rsp.Status = http.StatusInternalServerError
 		return rsp
 	}
 
@@ -71,8 +71,8 @@ func (cfg *Config) RegisterUserHandler(r *http.Request) (rsp *Response) {
 // UpdateGoogleKeyHandler updates a user's Google Sheets API Key
 func (cfg *Config) UpdateGoogleKeyHandler(r *http.Request) (rsp *Response) {
 	rsp = &Response{
-		status:   http.StatusOK,
-		template: "json",
+		Status:   http.StatusOK,
+		Template: "json",
 	}
 
 	// decode the JWT and make sure the signature is valid
@@ -132,8 +132,8 @@ func (cfg *Config) UpdateGoogleKeyHandler(r *http.Request) (rsp *Response) {
 // curl 'http://127.0.0.1:8000/get?google_key=my_key'
 func (cfg *Config) GetHandler(r *http.Request) (rsp *Response) {
 	rsp = &Response{
-		status:   http.StatusOK,
-		template: "json",
+		Status:   http.StatusOK,
+		Template: "json",
 	}
 
 	googleKey := r.FormValue("google_key")
@@ -174,8 +174,8 @@ func (cfg *Config) getCommands(googleKey string) (cmds commandFilterSlice, err e
 // curl -XPOST 'http://127.0.0.1:8000/sheets_run' -d '{"command_number":2, "params":["123"], "email":"me@example.com", "command":{"name":"my command","filter":{"type":"jmespath","filter":{"expression":""}},"command":{"type":"direct","command":{"method":"get","url":"https://example.com"}}},"key":"1234567"}'
 func (cfg *Config) RunSheetsHandler(r *http.Request) (rsp *Response) {
 	rsp = &Response{
-		status:   http.StatusOK,
-		template: "json",
+		Status:   http.StatusOK,
+		Template: "json",
 	}
 
 	uc := struct {
@@ -189,7 +189,7 @@ func (cfg *Config) RunSheetsHandler(r *http.Request) (rsp *Response) {
 	rsp.Error = json.NewDecoder(r.Body).Decode(&uc)
 	if rsp.Error != nil {
 		log.Info.Println(rsp.Error)
-		rsp.status = http.StatusInternalServerError
+		rsp.Status = http.StatusInternalServerError
 		return rsp
 	}
 
@@ -248,14 +248,14 @@ func (cfg *Config) RunSheetsHandler(r *http.Request) (rsp *Response) {
 // curl -XPOST 'http://127.0.0.1:8000/run' -d '{"google_key":"my_key", "command_name":"curl_command", "params":["1"]}'
 func (cfg *Config) RunHandler(r *http.Request) (rsp *Response) {
 	rsp = &Response{
-		status:   http.StatusOK,
-		template: "json",
+		Status:   http.StatusOK,
+		Template: "json",
 	}
 
 	var bdy []byte
 	bdy, rsp.Error = ioutil.ReadAll(r.Body)
 	if rsp.Error != nil {
-		rsp.status = http.StatusInternalServerError
+		rsp.Status = http.StatusInternalServerError
 		return rsp
 	}
 	defer r.Body.Close()
@@ -324,14 +324,14 @@ func (cfg *Config) RunHandler(r *http.Request) (rsp *Response) {
 // curl -XPOST 'http://127.0.0.1:8000/save' -d '{"google_key":"my_key","commands":[{"name":"api_command","command":{"type":"direct","command":{"method":"get","url":"https://api.chucknorris.io/jokes/random", "headers":[{"key":"User-Agent","value":"Data Connector"}]}},"filter":{"type":"jmespath","filter":{"expression":"[[value]]"}}}]}'
 func (cfg *Config) SaveHandler(r *http.Request) (rsp *Response) {
 	rsp = &Response{
-		status:   http.StatusOK,
-		template: "json",
+		Status:   http.StatusOK,
+		Template: "json",
 	}
 
 	var bdy []byte
 	bdy, rsp.Error = ioutil.ReadAll(r.Body)
 	if rsp.Error != nil {
-		rsp.status = http.StatusInternalServerError
+		rsp.Status = http.StatusInternalServerError
 		return rsp
 	}
 	defer r.Body.Close()
