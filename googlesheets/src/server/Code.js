@@ -41,32 +41,18 @@ export const registerUser = (email) => {
     },
   };
   options.payload = JSON.stringify(options.payload);
-  var response = UrlFetchApp.fetch(scriptProperties.getProperty('DOMAIN')+'/user/register', options).getContentText();
+  var response = UrlFetchApp.fetch(scriptProperties.getProperty(domainKey)+'/user/register', options).getContentText();
   return JSON.parse(response); 
 }
 
 export const getCommands = () => {
-  const scriptProperties = PropertiesService.getScriptProperties();
   const userProperties = PropertiesService.getUserProperties();
   var cmds = userProperties.getProperty(commandsKey);
   if (cmds){
     return {'response': JSON.parse(cmds)}
   }
 
-  // TODO: remove this after all users have had a chance to save their commands in the script
-  var google_key = Session.getTemporaryActiveUserKey();
-  var options = {
-    'validateHttpsCertificates': false,
-    'method': 'GET',
-    'followRedirects': true,
-    'muteHttpExceptions': false,
-  };
-  var response = UrlFetchApp.fetch(scriptProperties.getProperty(domainKey)+'/get?google_key='+google_key, options).getContentText();
-  var j = JSON.parse(response);
-  if('response' in j){
-    userProperties.setProperty(commandsKey, JSON.stringify(j['response']));
-  }
-  return j; 
+  return {};
 };
 
 export const getPromotions = () => {
