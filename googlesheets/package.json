@@ -38,6 +38,7 @@
     "@material-ui/icons": "^4.11.2",
     "@material-ui/lab": "^4.0.0-alpha.57",
     "bootstrap": "^4.6.0",
+    "fg-loadcss": "^3.1.0",
     "file-loader": "^6.2.0",
     "fontsource-roboto": "^4.0.0",
     "gas-client": "^0.1.0",

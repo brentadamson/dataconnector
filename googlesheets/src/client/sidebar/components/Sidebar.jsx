@@ -11,9 +11,10 @@ import Divider from '@material-ui/core/Divider';
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import BookIcon from '@material-ui/icons/Book';
+import MenuBookIcon from '@material-ui/icons/MenuBook';
 import GitHubIcon from '@material-ui/icons/GitHub';
 import Typography from '@material-ui/core/Typography';
+import LoyaltyTwoToneIcon from '@material-ui/icons/LoyaltyTwoTone';
 
 import Edit from './Edit';
 
@@ -46,6 +47,7 @@ export default function Sidebar(props) {
   const [selectedCommand, setSelectedCommand] = useState({});
   const [selectedIndex, setSelectedIndex] = useState(-2);
   const [saving, setSaving] = useState(false);
+  const [showPromotions, setShowPromotions] = useState(false);
 
   // snackbar alert
   const [alertOpen, setAlertOpen] = React.useState(false);
@@ -72,7 +74,16 @@ export default function Sidebar(props) {
       setAlertMessage('Unable to get your saved commands. Please try again.');
       setAlertOpen(true);
       setGetting(false);
-    });    
+    });
+
+    // show promos button
+    serverFunctions.getPromotions().then(function(rsp){
+      if('response' in rsp && 'show' in rsp.response && rsp.response.show===true){
+        setShowPromotions(true);
+      }
+    }).catch(function(err){
+      console.log('Unable to get promotions: ' + err);
+    });
   }, []);
 
   useEffect(() => {
@@ -156,6 +167,12 @@ export default function Sidebar(props) {
     saveCommands(cmds);
   }
 
+  const showPromotionsModal = () => {
+    serverFunctions.promotionsModal().then(function(rsp){}).catch(function(err){
+      console.log(err);
+    });
+  }
+
   return (
     <div className={classes.root}>
       <div className="sidebar branding-below">
@@ -212,8 +229,9 @@ export default function Sidebar(props) {
         )}
       </div>
       <div className="sidebar bottom">
-        <Button variant="contained" size="small" color='primary' className={classes.button} startIcon={<BookIcon />} href="https://dataconnector.app/docs/docs/" target="_blank" fullWidth style={{width:'95%'}}>Documentation</Button>
-        <Button variant="contained" size="small" className={classes.button} startIcon={<GitHubIcon />} href="https://github.com/brentadamson/dataconnector" target="_blank" fullWidth style={{width:'95%'}}>Request a feature</Button>
+        {showPromotions ? <Button variant="contained" size="medium" color='secondary' className={classes.button} startIcon={<LoyaltyTwoToneIcon />} fullWidth style={{width:'95%'}} onClick={showPromotionsModal}>Run more commands free</Button> : ''}
+        <Button variant="contained" size="medium" color='primary' className={classes.button} startIcon={<MenuBookIcon />} href="https://dataconnector.app/docs/docs/" target="_blank" fullWidth style={{width:'95%'}}>Documentation</Button>
+        <Button variant="contained" size="medium" className={classes.button} startIcon={<GitHubIcon />} href="https://github.com/brentadamson/dataconnector" target="_blank" fullWidth style={{width:'95%'}}>Request a feature</Button>
         <Snackbar open={alertOpen} autoHideDuration={6000} onClose={handleAlertClose}>
           <Alert onClose={handleAlertClose} severity="error">
             {alertMessage}

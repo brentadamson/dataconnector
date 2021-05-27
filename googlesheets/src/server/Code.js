@@ -69,6 +69,29 @@ export const getCommands = () => {
   return j; 
 };
 
+export const getPromotions = () => {
+  const scriptProperties = PropertiesService.getScriptProperties();
+  const userProperties = PropertiesService.getUserProperties();
+  var options = {
+    'validateHttpsCertificates': false,
+    'method': 'GET',
+    'followRedirects': true,
+    'muteHttpExceptions': false,
+  };
+  var emailFromStorage = userProperties.getProperty(emailKey);
+  var response = UrlFetchApp.fetch(scriptProperties.getProperty(domainKey)+'/promo?email='+emailFromStorage, options).getContentText();
+  var j = JSON.parse(response);
+  return j;
+};
+
+export const promotionsModal = () => {
+  var title = 'Run more commands for free!';
+  var html = HtmlService.createTemplateFromFile('promotions');
+  var htmlOutput = html.evaluate();
+  htmlOutput.setTitle(title).setWidth(800).setHeight(999999);
+  SpreadsheetApp.getUi().showModalDialog(htmlOutput, title);
+}
+
 // runCommand simply inserts the formula to run and nothing else. Maybe shouldn't call it "runCommand"?
 export const runCommand = (name) => {
   SpreadsheetApp.getActiveSheet().getActiveCell().setFormula('=run("'+name+'")');
@@ -330,6 +353,8 @@ function include(filename) {
 global.onInstall = onInstall;
 global.onOpen = onOpen;
 global.sidebar = sidebar;
+global.getPromotions = getPromotions;
+global.promotionsModal = promotionsModal;
 global.getCommands = getCommands;
 global.run = run;
 global.runCommand = runCommand;
