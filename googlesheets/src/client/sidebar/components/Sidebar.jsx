@@ -20,7 +20,6 @@ import Edit from './Edit';
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    display: 'flex',
     '& > *': {
       margin: theme.spacing(1),
     },
@@ -31,6 +30,10 @@ const useStyles = makeStyles((theme) => ({
   },
   divider: {
     marginBottom: theme.spacing(1),
+  },
+  divider2: {
+    marginBottom: theme.spacing(2),
+    marginTop: theme.spacing(2),
   }
 }));
 
@@ -175,69 +178,66 @@ export default function Sidebar(props) {
 
   return (
     <div className={classes.root}>
-      <div className="sidebar branding-below">
-        {getting ? <CircularProgress />
-        : editing ? <Edit selectedCommand={selectedCommand} setSelectedCommand={setSelectedCommand} newHeader={newHeader} setNewHeader={setNewHeader} saveNewHeader={saveNewHeader} commands={commands} saveCommands={saveCommands} saving={saving} setEditing={setEditing} setAlertMessage={setAlertMessage} />
-        : (!commands || commands.length === 0) ? (
-          <>
-            <Typography variant="h6" gutterBottom>
-            No saved data connections.
-            </Typography>
-            <Typography variant="body2" gutterBottom>
-            The link to our documentation below has tons of examples to help get you started.
-            </Typography>
-            <NewCommandButton editing={editing} editCommand={editCommand} />
-          </>
-        ) : (
-          <>
-            <h4>My data connections</h4>
-            {commands.length > 0 && commands.map((command, idx) => (
-              <div key={idx} className="block">
-                {(idx > 0) &&
-                  <Divider className={classes.divider} />
-                }
-                <label><strong>{command.name}</strong></label><br />
-                <Button
-                  size="small"
-                  className={classes.button}
-                  startIcon={<DeleteIcon />}
-                  disabled={saving} onClick={() => deleteCommand(idx)}
-                >
-                  Delete
-                </Button>
-                <Button
-                  size="small"
-                  className={classes.button}
-                  startIcon={<EditIcon style={{color:'#3f8cb5'}} />}
-                  disabled={editing || saving} onClick={() => editCommand(idx, command)}
-                >
-                  Edit
-                </Button>
-                <Button
-                  size="small"
-                  className={classes.button}
-                  startIcon={<DirectionsRun color='primary' />}
-                  disabled={running || saving} 
-                  onClick={() => runCommand(command.name)}
-                >
-                  Run
-                </Button>
-              </div>
-            ))}
-            <NewCommandButton editing={editing} editCommand={editCommand} />
-          </>
-        )}
-      </div>
-      <div className="sidebar bottom">
-        {showPromotions ? <Button variant="contained" size="medium" color='secondary' className={classes.button} startIcon={<LoyaltyTwoToneIcon />} fullWidth style={{width:'95%'}} onClick={showPromotionsModal}>Run more commands free</Button> : ''}
-        <Button variant="contained" size="medium" color='primary' className={classes.button} startIcon={<MenuBookIcon />} href="https://dataconnector.app/docs/docs/" target="_blank" fullWidth style={{width:'95%'}}>Documentation</Button>
-        <Button variant="contained" size="medium" className={classes.button} startIcon={<GitHubIcon />} href="https://github.com/brentadamson/dataconnector" target="_blank" fullWidth style={{width:'95%'}}>Request a feature</Button>
-        <Snackbar open={alertOpen} autoHideDuration={6000} onClose={handleAlertClose}>
-          <Alert onClose={handleAlertClose} severity="error">
-            {alertMessage}
-          </Alert>
-        </Snackbar>
-      </div>      
+      {getting ? <CircularProgress />
+      : editing ? <Edit selectedCommand={selectedCommand} setSelectedCommand={setSelectedCommand} newHeader={newHeader} setNewHeader={setNewHeader} saveNewHeader={saveNewHeader} commands={commands} saveCommands={saveCommands} saving={saving} setEditing={setEditing} setAlertMessage={setAlertMessage} />
+      : (!commands || commands.length === 0) ? (
+        <>
+          <Typography variant="h6" gutterBottom>
+          No saved data connections.
+          </Typography>
+          <Typography variant="body2" gutterBottom>
+          The link to our documentation below has tons of examples to help get you started.
+          </Typography>
+          <NewCommandButton editing={editing} editCommand={editCommand} />
+        </>
+      ) : (
+        <>
+          <h4>My data connections</h4>
+          {commands.length > 0 && commands.map((command, idx) => (
+            <div key={idx} className="block">
+              {(idx > 0) &&
+                <Divider className={classes.divider} />
+              }
+              <label><strong>{command.name}</strong></label><br />
+              <Button
+                size="small"
+                className={classes.button}
+                startIcon={<DeleteIcon />}
+                disabled={saving} onClick={() => deleteCommand(idx)}
+              >
+                Delete
+              </Button>
+              <Button
+                size="small"
+                className={classes.button}
+                startIcon={<EditIcon style={{color:'#3f8cb5'}} />}
+                disabled={editing || saving} onClick={() => editCommand(idx, command)}
+              >
+                Edit
+              </Button>
+              <Button
+                size="small"
+                className={classes.button}
+                startIcon={<DirectionsRun color='primary' />}
+                disabled={running || saving}
+                onClick={() => runCommand(command.name)}
+              >
+                Run
+              </Button>
+            </div>
+          ))}
+          <NewCommandButton editing={editing} editCommand={editCommand} />
+        </>
+      )}
+      <Divider className={classes.divider2} />
+      {showPromotions ? <Button variant="contained" size="medium" color='secondary' className={classes.button} startIcon={<LoyaltyTwoToneIcon />} fullWidth style={{width:'95%'}} onClick={showPromotionsModal}>Run more commands free</Button> : ''}
+      <Button variant="contained" size="medium" color='primary' className={classes.button} startIcon={<MenuBookIcon />} href="https://dataconnector.app/docs/docs/" target="_blank" fullWidth style={{width:'95%'}}>Documentation</Button>
+      <Button variant="contained" size="medium" className={classes.button} startIcon={<GitHubIcon />} href="https://github.com/brentadamson/dataconnector" target="_blank" fullWidth style={{width:'95%'}}>Request a feature</Button>
+      <Snackbar open={alertOpen} autoHideDuration={6000} onClose={handleAlertClose}>
+        <Alert onClose={handleAlertClose} severity="error">
+          {alertMessage}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };
