@@ -194,11 +194,12 @@ function run(name, args){
   }
 }
 
-var oauthConnections = [getFaceBookAdsManagerService, getGoogleAnalyticsReportingService, getGitHubService, getYouTubeService];
+var oauthConnections = [getFaceBookAdsManagerService, getGitHubService, getGoogleAnalyticsReportingService, getGoogleMyBusinessService, getYouTubeService];
 // These names should match the services defined in OAuth2.jsx
 var facebooksAdsManager = 'facebook_ads_manager';
 var github = 'github';
 var googleAnalyticsReporting = 'google_analytics_reporting';
+var googleMyBusiness = 'google_my_business';
 var youtube = 'youtube';
 
 /**
@@ -221,13 +222,15 @@ var youtube = 'youtube';
  * @return {String} The authorization URL.
  */
 function getAuthorizationUrl(service) {
-  if(service===facebooksAdsManager){
+  if(service === facebooksAdsManager){
     return getFaceBookAdsManagerService().getAuthorizationUrl();
-  } else if(service===github){
+  } else if(service === github){
     return getGitHubService().getAuthorizationUrl();
-  } else if (service == googleAnalyticsReporting){
+  } else if (service === googleAnalyticsReporting){
     return getGoogleAnalyticsReportingService().getAuthorizationUrl();
-  } else if (service == youtube){
+  } else if (service === googleMyBusiness){
+    return getGoogleMyBusinessService().getAuthorizationUrl();
+  } else if (service === youtube){
     return getYouTubeService().getAuthorizationUrl();
   }
 }
@@ -241,6 +244,8 @@ function oauthSignOut(provider) {
     getFaceBookAdsManagerService().reset();
   } else if(provider === googleAnalyticsReporting){
     getGoogleAnalyticsReportingService().reset();
+  } else if (service === googleMyBusiness){
+    getGoogleMyBusinessService().reset();
   } else if(provider === github){
     getGitHubService().reset();
   } else if(provider === youtube){
@@ -263,6 +268,8 @@ function authCallback(request){
       service = getFaceBookAdsManagerService();
     } else if(request.parameters.serviceName===googleAnalyticsReporting){
       service = getGoogleAnalyticsReportingService();
+    } else if(request.parameters.serviceName===googleMyBusiness){
+      service = getGoogleMyBusinessService();
     } else if(request.parameters.serviceName===github){
       service = getGitHubService();
     } else if(request.parameters.serviceName===youtube){
@@ -344,6 +351,23 @@ function include(filename) {
     .setClientSecret(scriptProperties.getProperty(githubClientSecret))
     .setCallbackFunction('authCallback')
     .setPropertyStore(userProperties);
+}
+
+/**
+ * Gets an OAuth2 service configured for the Google My Business API.
+ * @return {OAuth2.Service} The OAuth2 service
+ */
+ function getGoogleMyBusinessService(){
+  const scriptProperties = PropertiesService.getScriptProperties();
+  const userProperties = PropertiesService.getUserProperties();
+  return OAuth2.createService(googleMyBusiness)
+  .setAuthorizationBaseUrl('https://accounts.google.com/o/oauth2/auth')
+  .setTokenUrl('https://accounts.google.com/o/oauth2/token')
+  .setClientId(scriptProperties.getProperty(googleAnalyticsReportingClientID))
+  .setClientSecret(scriptProperties.getProperty(googleAnalyticsReportingSecret))
+  .setCallbackFunction('authCallback')
+  .setScope('https://www.googleapis.com/auth/business.manage')
+  .setPropertyStore(userProperties);
 }
 
 /**

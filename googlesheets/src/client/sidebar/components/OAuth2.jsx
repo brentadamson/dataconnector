@@ -12,6 +12,7 @@ import { Icon, InlineIcon } from '@iconify/react';
 import googleAnalytics from '@iconify-icons/mdi/google-analytics';
 import youtubeIcon from '@iconify-icons/mdi/youtube';
 import facebookIcon from '@iconify-icons/mdi/facebook';
+import googleMyBusiness from '@iconify-icons/mdi/google-my-business';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -58,6 +59,7 @@ export default function OAuth2(props) {
   const facebooksAdsManager = 'facebook_ads_manager';
   const github = 'github';
   const googleAnalyticsReporting = 'google_analytics_reporting';
+  const googleMyBusiness = 'google_my_business';
   const youtube = 'youtube';
 
   function oauthConnect(service){
@@ -112,6 +114,26 @@ export default function OAuth2(props) {
             <Grid item xs={2}></Grid>
           </Grid>
         </MenuItem>
+        <MenuItem key={github} value={github}>
+          <Grid container spacing={3} container direction="row" alignItems="center">
+            <Grid item xs={2}>
+              <GitHubIcon />
+            </Grid>
+            <Grid item xs={4}>
+              <Typography variant="body1">GitHub</Typography>
+            </Grid>
+            <Grid item xs={2}>
+              <Button
+                size="small"
+                color={activeConnections.includes(github) ? 'default':'primary'}
+                onClick={() => oauthConnect(github)}
+              >
+              {activeConnections.includes(github) ? 'Disconnect':'Connect'}
+              </Button>
+            </Grid>
+            <Grid item xs={2}></Grid>
+          </Grid>
+        </MenuItem>
         <MenuItem key={googleAnalyticsReporting} value={googleAnalyticsReporting}>
           <Grid container spacing={3} container direction="row" alignItems="center">
             <Grid item xs={1}>
@@ -131,24 +153,23 @@ export default function OAuth2(props) {
             </Grid>
           </Grid>
         </MenuItem>
-        <MenuItem key={github} value={github}>
+        <MenuItem key={googleMyBusiness} value={googleMyBusiness}>
           <Grid container spacing={3} container direction="row" alignItems="center">
-            <Grid item xs={2}>
-              <GitHubIcon />
+            <Grid item xs={1}>
+              <Icon icon={googleMyBusiness} />
             </Grid>
             <Grid item xs={4}>
-              <Typography variant="body1">GitHub</Typography>
+              <Typography variant="body1">Google My Business</Typography>
             </Grid>
-            <Grid item xs={2}>
+            <Grid item xs={12} style={{paddingTop:'0px'}}>
               <Button
                 size="small"
-                color={activeConnections.includes(github) ? 'default':'primary'}
-                onClick={() => oauthConnect(github)}
+                color={activeConnections.includes(googleMyBusiness) ? 'default':'primary'}
+                onClick={() => oauthConnect(googleMyBusiness)}
               >
-              {activeConnections.includes(github) ? 'Disconnect':'Connect'}
+              {activeConnections.includes(googleMyBusiness) ? 'Disconnect':'Connect'}
               </Button>
             </Grid>
-            <Grid item xs={2}></Grid>
           </Grid>
         </MenuItem>
         <MenuItem key={youtube} value={youtube}>
