@@ -76,6 +76,9 @@ The easiest way to run the Data Connector Add-on is to install it from the Googl
     PropertiesService.getScriptProperties().setProperty('KEY',"my-key");
 
     // OAuth2 Creds
+    //// Facebook Ads Manager API
+    PropertiesService.getScriptProperties().setProperty('FACEBOOK_ADS_MANAGER_CLIENT_ID', 'my-facebook-ads-manager-app-id');
+    PropertiesService.getScriptProperties().setProperty('FACEBOOK_ADS_MANAGER_CLIENT_SECRET', 'my-facebook-ads-manager-client-secret');
     //// GitHub API
     PropertiesService.getScriptProperties().setProperty('GITHUB_CLIENT_ID', 'my-github-client-id');
     PropertiesService.getScriptProperties().setProperty('GITHUB_CLIENT_SECRET', 'my-github-client-secret');

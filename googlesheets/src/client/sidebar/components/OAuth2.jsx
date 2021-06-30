@@ -11,6 +11,7 @@ import Typography from '@material-ui/core/Typography';
 import { Icon, InlineIcon } from '@iconify/react';
 import googleAnalytics from '@iconify-icons/mdi/google-analytics';
 import youtubeIcon from '@iconify-icons/mdi/youtube';
+import facebookIcon from '@iconify-icons/mdi/facebook';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -54,6 +55,7 @@ export default function OAuth2(props) {
 
   const none = 'none';
   // These names should match the services defined in Code.js
+  const facebooksAdsManager = 'facebook_ads_manager';
   const github = 'github';
   const googleAnalyticsReporting = 'google_analytics_reporting';
   const youtube = 'youtube';
@@ -90,6 +92,26 @@ export default function OAuth2(props) {
         inputProps={{style: {fontSize: 12}}} InputLabelProps={{style: {fontSize: 12}}}
       >
         <MenuItem key={none} value="">None</MenuItem>
+        <MenuItem key={facebooksAdsManager} value={facebooksAdsManager}>
+          <Grid container spacing={3} container direction="row" alignItems="center">
+            <Grid item xs={1}>
+              <Icon icon={facebookIcon} />
+            </Grid>
+            <Grid item xs={4}>
+              <Typography variant="body1">Facebook Ads Manager</Typography>
+            </Grid>
+            <Grid item xs={12}>
+              <Button
+                size="small"
+                color={activeConnections.includes(facebooksAdsManager) ? 'default':'primary'}
+                onClick={() => oauthConnect(facebooksAdsManager)}
+              >
+              {activeConnections.includes(facebooksAdsManager) ? 'Disconnect':'Connect'}
+              </Button>
+            </Grid>
+            <Grid item xs={2}></Grid>
+          </Grid>
+        </MenuItem>
         <MenuItem key={googleAnalyticsReporting} value={googleAnalyticsReporting}>
           <Grid container spacing={3} container direction="row" alignItems="center">
             <Grid item xs={1}>

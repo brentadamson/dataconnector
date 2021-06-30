@@ -1,5 +1,7 @@
 const key = 'KEY';
 const domainKey = 'DOMAIN';
+const facebookAdsManagerClientID = 'FACEBOOK_ADS_MANAGER_CLIENT_ID';
+const facebookAdsManagerSecret = 'FACEBOOK_ADS_MANAGER_CLIENT_SECRET';
 const googleAnalyticsReportingClientID = 'GOOGLE_ANALYTICS_REPORTING_CLIENT_ID';
 const googleAnalyticsReportingSecret = 'GOOGLE_ANALYTICS_REPORTING_SECRET';
 const githubClientID = 'GITHUB_CLIENT_ID';
@@ -192,8 +194,9 @@ function run(name, args){
   }
 }
 
-var oauthConnections = [getGoogleAnalyticsReportingService, getGitHubService, getYouTubeService];
+var oauthConnections = [getFaceBookAdsManagerService, getGoogleAnalyticsReportingService, getGitHubService, getYouTubeService];
 // These names should match the services defined in OAuth2.jsx
+var facebooksAdsManager = 'facebook_ads_manager';
 var github = 'github';
 var googleAnalyticsReporting = 'google_analytics_reporting';
 var youtube = 'youtube';
@@ -218,7 +221,9 @@ var youtube = 'youtube';
  * @return {String} The authorization URL.
  */
 function getAuthorizationUrl(service) {
-  if(service===github){
+  if(service===facebooksAdsManager){
+    return getFaceBookAdsManagerService().getAuthorizationUrl();
+  } else if(service===github){
     return getGitHubService().getAuthorizationUrl();
   } else if (service == googleAnalyticsReporting){
     return getGoogleAnalyticsReportingService().getAuthorizationUrl();
@@ -232,7 +237,9 @@ function getAuthorizationUrl(service) {
  * additional authorization-required API calls can be made.
  */
 function oauthSignOut(provider) {
-  if(provider === googleAnalyticsReporting){
+  if(service===facebooksAdsManager){
+    getFaceBookAdsManagerService().reset();
+  } else if(provider === googleAnalyticsReporting){
     getGoogleAnalyticsReportingService().reset();
   } else if(provider === github){
     getGitHubService().reset();
@@ -252,7 +259,9 @@ function authCallback(request){
   var title;
   try {
     var service;
-    if(request.parameters.serviceName===googleAnalyticsReporting){
+    if(request.parameters.serviceName===facebooksAdsManager){
+      service = getFaceBookAdsManagerService();
+    } else if(request.parameters.serviceName===googleAnalyticsReporting){
       service = getGoogleAnalyticsReportingService();
     } else if(request.parameters.serviceName===github){
       service = getGitHubService();
@@ -263,6 +272,7 @@ function authCallback(request){
     template.isSignedIn = authorized;
     title = authorized ? 'Access Granted' : 'Failed to connect to service';
   } catch (e) {
+    Logger.log('OAuth2 Error: ' + e);
     template.error = e;
     title = 'Access Error';
   }
@@ -284,6 +294,23 @@ function logRedirectUri() {
  */
 function include(filename) {
   return HtmlService.createHtmlOutputFromFile(filename).getContent();
+}
+
+/**
+ * Gets an OAuth2 service configured for the Facebook Ads Manager API.
+ * @return {OAuth2.Service} The OAuth2 service
+ */
+ function getFaceBookAdsManagerService(){
+  const scriptProperties = PropertiesService.getScriptProperties();
+  const userProperties = PropertiesService.getUserProperties();
+  return OAuth2.createService(youtube)
+  .setAuthorizationBaseUrl('https://www.facebook.com/v3.2/dialog/oauth')
+  .setTokenUrl('https://graph.facebook.com/v3.2/oauth/access_token')
+  .setClientId(scriptProperties.getProperty(facebookAdsManagerClientID))
+  .setClientSecret(scriptProperties.getProperty(facebookAdsManagerSecret))
+  .setCallbackFunction('authCallback')
+  .setScope('ads_management')
+  .setPropertyStore(userProperties);
 }
 
 /**
